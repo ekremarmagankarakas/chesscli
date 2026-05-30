@@ -1,9 +1,7 @@
-#include <iostream>
-
-#include "board.h"
+#include "game.h"
 
 int main() {
-  Board board;
-  board.Print();
+  Game game;
+  game.Play();
   return 0;
 }
