@@ -4,7 +4,7 @@
 
 class King : public Piece {
  public:
-  King(Color color, PieceType type);
+  explicit King(Color color);
 
   char GetSymbol() const override;
   std::vector<Square> ValidMoves(const Square& from,

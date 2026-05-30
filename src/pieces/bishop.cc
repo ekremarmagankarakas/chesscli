@@ -4,7 +4,7 @@
 
 #include "../piece.h"
 
-Bishop::Bishop(Color color, PieceType type) : Piece(color, type) {}
+Bishop::Bishop(Color color) : Piece(color, PieceType::kBishop) {}
 char Bishop::GetSymbol() const {
   return GetColor() == Color::kWhite ? 'B' : 'b';
 }

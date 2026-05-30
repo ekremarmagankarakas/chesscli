@@ -9,22 +9,24 @@ class Board {
  public:
   static constexpr int kSize = 8;
 
-  Board();  // sets up the starting position
+  Board();
 
   void Setup();
   void Print() const;
 
-  // Returns nullptr if the square is empty.
   Piece* At(const Square& square) const;
   Piece* At(int row, int col) const;
 
   // Moves a piece, overwriting whatever is on the destination square.
-  // Does not validate legality — that's the caller's job.
+  // Does not validate legality. Toggles side to move.
   void MovePiece(const Square& from, const Square& to);
+
+  Color ToMove() const { return side_to_move_; }
 
   static bool InBounds(const Square& square);
   static bool InBounds(int row, int col);
 
  private:
   std::array<std::array<std::unique_ptr<Piece>, kSize>, kSize> grid_;
+  Color side_to_move_ = Color::kWhite;
 };

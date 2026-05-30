@@ -4,7 +4,7 @@
 
 class Bishop : public Piece {
  public:
-  Bishop(Color color, PieceType type);
+  explicit Bishop(Color color);
 
   char GetSymbol() const override;
   std::vector<Square> ValidMoves(const Square& from,
