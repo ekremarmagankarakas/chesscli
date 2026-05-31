@@ -3,6 +3,7 @@
 #include <optional>
 
 #include "piece.h"
+#include "square.h"
 
 struct Move {
   Square from;

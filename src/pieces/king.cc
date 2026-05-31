@@ -3,9 +3,14 @@
 #include <vector>
 
 #include "../piece.h"
+#include "../square.h"
 
 King::King(Color color) : Piece(color, PieceType::kKing) {}
 char King::GetSymbol() const { return GetColor() == Color::kWhite ? 'K' : 'k'; }
+
+std::unique_ptr<Piece> King::Clone() const {
+  return std::make_unique<King>(GetColor());
+}
 
 std::vector<Square> King::ValidMoves(const Square& from,
                                      const Board& board) const {

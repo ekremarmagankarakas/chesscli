@@ -4,9 +4,14 @@
 
 #include "../board.h"
 #include "../piece.h"
+#include "../square.h"
 
 Pawn::Pawn(Color color) : Piece(color, PieceType::kPawn) {}
 char Pawn::GetSymbol() const { return GetColor() == Color::kWhite ? 'P' : 'p'; }
+
+std::unique_ptr<Piece> Pawn::Clone() const {
+  return std::make_unique<Pawn>(GetColor());
+}
 
 std::vector<Square> Pawn::ValidMoves(const Square& from,
                                      const Board& board) const {

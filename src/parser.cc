@@ -4,6 +4,7 @@
 
 #include "move.h"
 #include "piece.h"
+#include "square.h"
 
 Parser::Parser(const std::string& input) : input_(input) {}
 
@@ -16,5 +17,26 @@ std::optional<Move> Parser::parse() {
   if (!from || !to) {
     return std::nullopt;
   }
-  return Move(*from, *to, std::nullopt, false, false);
+
+  std::optional<PieceType> promotion;
+  if (input_.size() == 5) {
+    switch (input_[4]) {
+      case 'q':
+        promotion = PieceType::kQueen;
+        break;
+      case 'r':
+        promotion = PieceType::kRook;
+        break;
+      case 'b':
+        promotion = PieceType::kBishop;
+        break;
+      case 'n':
+        promotion = PieceType::kKnight;
+        break;
+      default:
+        return std::nullopt;
+    }
+  }
+
+  return Move(*from, *to, promotion, false, false);
 }

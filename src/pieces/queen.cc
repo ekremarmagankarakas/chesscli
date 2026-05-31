@@ -3,10 +3,15 @@
 #include <vector>
 
 #include "../piece.h"
+#include "../square.h"
 
 Queen::Queen(Color color) : Piece(color, PieceType::kQueen) {}
 char Queen::GetSymbol() const {
   return GetColor() == Color::kWhite ? 'Q' : 'q';
+}
+
+std::unique_ptr<Piece> Queen::Clone() const {
+  return std::make_unique<Queen>(GetColor());
 }
 
 std::vector<Square> Queen::ValidMoves(const Square& from,

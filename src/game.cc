@@ -17,32 +17,30 @@ void Game::Play() {
     std::cout << input << std::endl;
 
     Parser parser(input);
-    auto move = parser.parse();
+    std::optional<Move> move = parser.parse();
     if (!move) {
       std::cout << "Bad input " << input << std::endl;
       continue;
     }
-    Piece* p = board_.At(move->from);
-    if (!p) {
-      std::cout << "no piece at " << move->from.ToAlgebraic() << std::endl;
+    if (!board_.IsLegal(*move)) {
+      std::cout << "Illegal move " << input << std::endl;
       continue;
     }
-    if (p->GetColor() != board_.ToMove()) {
-      std::cout << "not your turn" << std::endl;
-      continue;
-    }
-    auto moves = p->ValidMoves(move->from, board_);
-    bool ok = false;
-    for (const auto& sq : moves) {
-      if (sq == move->to) {
-        ok = true;
-        break;
+
+    board_.Apply(*move);
+
+    if (board_.IsCheckmate()) {
+      Color opponent =
+          board_.ToMove() == Color::kWhite ? Color::kBlack : Color::kWhite;
+      if (opponent == Color::kWhite) {
+        std::cout << "WHITE WON!" << std::endl;
+      } else {
+        std::cout << "BLACK WON!" << std::endl;
       }
+      is_game_over_ = true;
+    } else if (board_.IsStalemate()) {
+      std::cout << "STALEMATE!" << std::endl;
+      is_game_over_ = true;
     }
-    if (!ok) {
-      std::cout << "illegal move " << input << std::endl;
-      continue;
-    }
-    board_.MovePiece(move->from, move->to);
   }
 }

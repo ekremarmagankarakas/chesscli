@@ -3,9 +3,14 @@
 #include <vector>
 
 #include "../piece.h"
+#include "../square.h"
 
 Rook::Rook(Color color) : Piece(color, PieceType::kRook) {}
 char Rook::GetSymbol() const { return GetColor() == Color::kWhite ? 'R' : 'r'; }
+
+std::unique_ptr<Piece> Rook::Clone() const {
+  return std::make_unique<Rook>(GetColor());
+}
 
 std::vector<Square> Rook::ValidMoves(const Square& from,
                                      const Board& board) const {

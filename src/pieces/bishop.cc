@@ -3,10 +3,15 @@
 #include <vector>
 
 #include "../piece.h"
+#include "../square.h"
 
 Bishop::Bishop(Color color) : Piece(color, PieceType::kBishop) {}
 char Bishop::GetSymbol() const {
   return GetColor() == Color::kWhite ? 'B' : 'b';
+}
+
+std::unique_ptr<Piece> Bishop::Clone() const {
+  return std::make_unique<Bishop>(GetColor());
 }
 
 std::vector<Square> Bishop::ValidMoves(const Square& from,

@@ -2,14 +2,21 @@
 
 #include <array>
 #include <memory>
+#include <optional>
 
+#include "move.h"
 #include "piece.h"
+#include "square.h"
 
 class Board {
  public:
   static constexpr int kSize = 8;
 
   Board();
+  Board(const Board& other);
+  Board& operator=(const Board& other);
+  Board(Board&&) = default;
+  Board& operator=(Board&&) = default;
 
   void Setup();
   void Print() const;
@@ -17,16 +24,25 @@ class Board {
   Piece* At(const Square& square) const;
   Piece* At(int row, int col) const;
 
-  // Moves a piece, overwriting whatever is on the destination square.
-  // Does not validate legality. Toggles side to move.
-  void MovePiece(const Square& from, const Square& to);
+  void Apply(const Move& move);
 
   Color ToMove() const { return side_to_move_; }
 
   static bool InBounds(const Square& square);
   static bool InBounds(int row, int col);
 
+  bool IsLegal(const Move& move) const;
+  bool IsCheckmate() const;
+  bool IsStalemate() const;
+
  private:
   std::array<std::array<std::unique_ptr<Piece>, kSize>, kSize> grid_;
   Color side_to_move_ = Color::kWhite;
+
+  bool IsInCheck(Color color) const;
+  bool IsSquareAttacked(Square s, Color color) const;
+  bool IsValidMove(const Move& move, const Piece& piece) const;
+  bool IsYourMove(const Piece& piece) const;
+  bool HasAnyLegalMove(Color side) const;
+  std::optional<Square> FindPiece(const PieceType pt, const Color color) const;
 };
