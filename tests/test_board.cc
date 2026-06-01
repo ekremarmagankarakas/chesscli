@@ -28,3 +28,16 @@ TEST_CASE("undo restores starting position") {
   CHECK(b.At(3, 4) == nullptr);
   CHECK(b.ToMove() == Color::kWhite);
 }
+
+TEST_CASE("en passant capture") {
+  Board b;
+  b.Apply(Move{{1, 4}, {3, 4}, std::nullopt});  // e2-e4
+  b.Apply(Move{{6, 0}, {5, 0}, std::nullopt});  // a7-a6
+  b.Apply(Move{{3, 4}, {4, 4}, std::nullopt});  // e4-e5
+  b.Apply(Move{{6, 3}, {4, 3}, std::nullopt});  // d7-d5 (double push)
+  // Now white pawn on e5 can EP-capture to d6.
+  CHECK(b.IsLegal(Move{{4, 4}, {5, 3}, std::nullopt}));
+  b.Apply(Move{{4, 4}, {5, 3}, std::nullopt});
+  CHECK(b.At(5, 3) != nullptr);  // pawn on d6
+  CHECK(b.At(4, 3) == nullptr);  // captured pawn gone
+}

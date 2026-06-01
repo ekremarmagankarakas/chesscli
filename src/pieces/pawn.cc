@@ -45,6 +45,24 @@ std::vector<Square> Pawn::ValidMoves(const Square& from,
     }
   }
 
+  // En-passant
+  for (int dc : {-1, 1}) {
+    int cr = from.row;
+    int cc = from.col + dc;
+    if (!Board::InBounds(cr, cc)) {
+      continue;
+    }
+    auto target = board.At(cr, cc);
+    if (target && target->GetColor() != GetColor() &&
+        target->GetType() == PieceType::kPawn) {
+      std::optional<Move> last_move = board.LastMove();
+      if (last_move && last_move->to == Square{cr, cc} &&
+          std::abs(last_move->from.row - last_move->to.row) == 2) {
+        moves.push_back({from.row + dir, cc});
+      }
+    }
+  }
+
   return moves;
 }
 

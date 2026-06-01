@@ -42,6 +42,8 @@ class Board {
   bool CanCastleKingside(Color color) const;
   bool CanCastleQueenside(Color color) const;
 
+  std::optional<Move> LastMove() const;
+
  private:
   std::array<std::array<std::unique_ptr<Piece>, kSize>, kSize> grid_;
   Color side_to_move_ = Color::kWhite;

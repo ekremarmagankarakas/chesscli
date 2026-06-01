@@ -158,6 +158,13 @@ bool Board::IsLegal(const Move& move) const {
   return true;
 }
 
+std::optional<Move> Board::LastMove() const {
+  if (history_.empty()) {
+    return std::nullopt;
+  }
+  return history_.back().move;
+}
+
 bool Board::IsYourMove(const Piece& piece) const {
   return (piece.GetColor() == side_to_move_);
 }
@@ -302,6 +309,14 @@ void Board::ApplyNoHistory(const Move& move) {
   }
   Color color = moving->GetColor();
   PieceType ptype = moving->GetType();
+
+  // En passant: pawn moves diagonally to empty square -> remove the
+  // adjacent pawn that just double-pushed.
+  bool is_ep_capture =
+      ptype == PieceType::kPawn && move.from.col != move.to.col && !At(move.to);
+  if (is_ep_capture) {
+    grid_[move.from.row][move.to.col] = nullptr;
+  }
 
   // Castling: king moves 2 columns.
   bool is_castle =
