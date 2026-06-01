@@ -13,8 +13,12 @@ void Game::Play() {
   while (!is_game_over_) {
     board_.Print();
     std::string input;
-    std::getline(std::cin, input);
-    std::cout << input << std::endl;
+    if (!std::getline(std::cin, input)) {
+      break;
+    }
+    if (input == "quit" || input == "exit") {
+      break;
+    }
 
     Parser parser(input);
     std::optional<Move> move = parser.parse();

@@ -47,3 +47,16 @@ std::vector<Square> Pawn::ValidMoves(const Square& from,
 
   return moves;
 }
+
+std::vector<Square> Pawn::Attacks(const Square& from, const Board&) const {
+  std::vector<Square> attacks;
+  const int dir = GetColor() == Color::kWhite ? 1 : -1;
+  for (int dc : {-1, 1}) {
+    int cr = from.row + dir;
+    int cc = from.col + dc;
+    if (Board::InBounds(cr, cc)) {
+      attacks.push_back({cr, cc});
+    }
+  }
+  return attacks;
+}

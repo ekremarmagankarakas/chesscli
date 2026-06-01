@@ -12,4 +12,6 @@ class King : public Piece {
   char GetSymbol() const override;
   std::vector<Square> ValidMoves(const Square& from,
                                  const Board& board) const override;
+  std::vector<Square> Attacks(const Square& from,
+                              const Board& board) const override;
 };

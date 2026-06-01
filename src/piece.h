@@ -1,4 +1,5 @@
 #pragma once
+#include <memory>
 #include <vector>
 
 #include "square.h"
@@ -20,6 +21,15 @@ class Piece {
   virtual char GetSymbol() const = 0;
   virtual std::vector<Square> ValidMoves(const Square& from,
                                          const Board& board) const = 0;
+
+  // Squares this piece attacks (controls). Default: same as ValidMoves.
+  // Pawn overrides to exclude pushes; King overrides to exclude castling.
+  // Used by IsSquareAttacked. Must not invoke any logic that recurses
+  // back into IsSquareAttacked.
+  virtual std::vector<Square> Attacks(const Square& from,
+                                      const Board& board) const {
+    return ValidMoves(from, board);
+  }
 
  private:
   Color color_;

@@ -38,5 +38,5 @@ std::optional<Move> Parser::parse() {
     }
   }
 
-  return Move(*from, *to, promotion, false, false);
+  return Move(*from, *to, promotion);
 }

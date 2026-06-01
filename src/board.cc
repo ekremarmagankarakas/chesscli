@@ -1,5 +1,7 @@
 #include "board.h"
 
+#include <algorithm>
+#include <cstdlib>
 #include <iostream>
 
 #include "pieces/bishop.h"
@@ -12,7 +14,8 @@
 
 Board::Board() { Setup(); }
 
-Board::Board(const Board& other) : side_to_move_(other.side_to_move_) {
+Board::Board(const Board& other)
+    : side_to_move_(other.side_to_move_), castling_(other.castling_) {
   for (int row = 0; row < kSize; ++row) {
     for (int col = 0; col < kSize; ++col) {
       if (other.grid_[row][col]) {
@@ -29,6 +32,7 @@ Board& Board::operator=(const Board& other) {
     return *this;
   }
   side_to_move_ = other.side_to_move_;
+  castling_ = other.castling_;
   for (int row = 0; row < kSize; ++row) {
     for (int col = 0; col < kSize; ++col) {
       if (other.grid_[row][col]) {
@@ -48,6 +52,7 @@ void Board::Setup() {
     }
   }
   side_to_move_ = Color::kWhite;
+  castling_ = CastlingRights{};
 
   for (int col = 0; col < kSize; ++col) {
     grid_[1][col] = std::make_unique<Pawn>(Color::kWhite);
@@ -103,21 +108,16 @@ bool Board::InBounds(int row, int col) {
   return row >= 0 && row < kSize && col >= 0 && col < kSize;
 }
 
-std::optional<Square> Board::FindPiece(const PieceType pt,
+std::optional<Square> Board::FindPiece(const PieceType ptype,
                                        const Color color) const {
   Square square;
-  bool found = false;
   for (int row = 0; row < kSize; ++row) {
     for (int col = 0; col < kSize; ++col) {
       auto piece = At(row, col);
-      if (piece && piece->GetType() == pt && piece->GetColor() == color) {
+      if (piece && piece->GetType() == ptype && piece->GetColor() == color) {
         square = {row, col};
-        found = true;
-        break;
+        return square;
       }
-    }
-    if (found) {
-      return square;
     }
   }
   return std::nullopt;  // Piece Not found
@@ -184,14 +184,54 @@ bool Board::IsSquareAttacked(Square s, Color color) const {
     for (int col = 0; col < kSize; ++col) {
       auto piece = At(row, col);
       if (piece && piece->GetColor() != color) {
-        auto moves = piece->ValidMoves({row, col}, *this);
-        if (std::find(moves.begin(), moves.end(), s) != moves.end()) {
+        auto attacks = piece->Attacks({row, col}, *this);
+        if (std::find(attacks.begin(), attacks.end(), s) != attacks.end()) {
           return true;
         }
       }
     }
   }
   return false;
+}
+
+bool Board::CanCastleKingside(Color color) const {
+  if (!castling_.Kingside(color)) {
+    return false;
+  }
+  int row = color == Color::kWhite ? 0 : 7;
+  if (At(row, 5) || At(row, 6)) {
+    return false;
+  }
+  if (IsSquareAttacked({row, 4}, color)) {
+    return false;
+  }
+  if (IsSquareAttacked({row, 5}, color)) {
+    return false;
+  }
+  if (IsSquareAttacked({row, 6}, color)) {
+    return false;
+  }
+  return true;
+}
+
+bool Board::CanCastleQueenside(Color color) const {
+  if (!castling_.Queenside(color)) {
+    return false;
+  }
+  int row = color == Color::kWhite ? 0 : 7;
+  if (At(row, 1) || At(row, 2) || At(row, 3)) {
+    return false;
+  }
+  if (IsSquareAttacked({row, 4}, color)) {
+    return false;
+  }
+  if (IsSquareAttacked({row, 3}, color)) {
+    return false;
+  }
+  if (IsSquareAttacked({row, 2}, color)) {
+    return false;
+  }
+  return true;
 }
 
 bool Board::IsCheckmate() const {
@@ -220,7 +260,7 @@ bool Board::HasAnyLegalMove(Color side) const {
       auto moves = piece->ValidMoves({row, col}, *this);
       for (const auto& to : moves) {
         Board sim = *this;
-        sim.Apply(Move{Square{row, col}, to, std::nullopt, false, false});
+        sim.Apply(Move{Square{row, col}, to, std::nullopt});
         if (!sim.IsInCheck(side)) {
           return true;
         }
@@ -231,8 +271,23 @@ bool Board::HasAnyLegalMove(Color side) const {
 }
 
 void Board::Apply(const Move& move) {
+  Piece* moving = At(move.from);
+  if (!moving) {
+    return;
+  }
+  Color color = moving->GetColor();
+  PieceType ptype = moving->GetType();
+
+  // Castling: king moves 2 columns.
+  bool is_castle =
+      ptype == PieceType::kKing && std::abs(move.to.col - move.from.col) == 2;
+  if (is_castle) {
+    int rook_from = move.to.col > move.from.col ? 7 : 0;
+    int rook_to = move.to.col > move.from.col ? 5 : 3;
+    grid_[move.from.row][rook_to] = std::move(grid_[move.from.row][rook_from]);
+  }
+
   if (move.promotion) {
-    Color color = side_to_move_;
     switch (*move.promotion) {
       case PieceType::kQueen:
         grid_[move.to.row][move.to.col] = std::make_unique<Queen>(color);
@@ -247,13 +302,23 @@ void Board::Apply(const Move& move) {
         grid_[move.to.row][move.to.col] = std::make_unique<Knight>(color);
         break;
       default:
-        return;  // Invalid promotion piece
+        return;
     }
     grid_[move.from.row][move.from.col] = nullptr;
   } else {
     grid_[move.to.row][move.to.col] =
         std::move(grid_[move.from.row][move.from.col]);
   }
+
+  // Update castling rights.
+  if (ptype == PieceType::kKing) {
+    castling_.ClearAll(color);
+  }
+  if (ptype == PieceType::kRook) {
+    castling_.ClearByRookSquare(move.from);
+  }
+  castling_.ClearByRookSquare(move.to);  // captured rook on home square
+
   side_to_move_ =
       side_to_move_ == Color::kWhite ? Color::kBlack : Color::kWhite;
 }
