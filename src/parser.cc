@@ -9,7 +9,7 @@
 Parser::Parser(const std::string& input) : input_(input) {}
 
 std::optional<Move> Parser::parse() {
-  if (input_.size() < 4) {
+  if (input_.size() < 4 || input_.size() > 5) {
     return std::nullopt;
   }
   auto from = Square::FromAlgebraic(input_.substr(0, 2));
