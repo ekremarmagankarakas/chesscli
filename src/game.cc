@@ -1,21 +1,23 @@
 #include "game.h"
 
-#include <iostream>
 #include <optional>
 #include <string>
 
 #include "move.h"
 #include "parser.h"
 
-Game::Game(std::unique_ptr<View> view) : view_(std::move(view)) {};
+Game::Game(std::unique_ptr<View> view,
+           std::unique_ptr<InputSource> input_source)
+    : view_(std::move(view)), input_source_(std::move(input_source)) {}
 
 void Game::Play() {
   while (!is_game_over_) {
     view_->Render(board_);
-    std::string input;
-    if (!std::getline(std::cin, input)) {
+    std::optional<std::string> raw_input = input_source_->ReadLine();
+    if (!raw_input) {
       break;
     }
+    const std::string input = *raw_input;
     if (input == "quit" || input == "exit") {
       break;
     }
