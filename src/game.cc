@@ -19,6 +19,10 @@ void Game::Play() {
     if (input == "quit" || input == "exit") {
       break;
     }
+    if (input == "undo") {
+      board_.Undo();
+      continue;
+    }
 
     Parser parser(input);
     std::optional<Move> move = parser.parse();

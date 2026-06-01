@@ -18,12 +18,13 @@ static uint64_t Perft(Board& b, int depth) {
         continue;
       }
       for (Square to : p->ValidMoves({r, c}, b)) {
-        bool is_promo = p->GetType() == PieceType::kPawn &&
-                        (to.row == 0 || to.row == 7);
+        bool is_promo =
+            p->GetType() == PieceType::kPawn && (to.row == 0 || to.row == 7);
         std::vector<std::optional<PieceType>> promos =
-            is_promo ? std::vector<std::optional<PieceType>>{
-                           PieceType::kQueen, PieceType::kRook,
-                           PieceType::kBishop, PieceType::kKnight}
+            is_promo ? std::vector<std::optional<PieceType>>{PieceType::kQueen,
+                                                             PieceType::kRook,
+                                                             PieceType::kBishop,
+                                                             PieceType::kKnight}
                      : std::vector<std::optional<PieceType>>{std::nullopt};
         for (auto promo : promos) {
           Move m{Square{r, c}, to, promo};

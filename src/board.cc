@@ -3,6 +3,7 @@
 #include <algorithm>
 #include <cstdlib>
 #include <iostream>
+#include <memory>
 
 #include "pieces/bishop.h"
 #include "pieces/king.h"
@@ -149,7 +150,7 @@ bool Board::IsLegal(const Move& move) const {
 
   // Simulate and reject if own king attacked after.
   Board sim = *this;
-  sim.Apply(move);
+  sim.ApplyNoHistory(move);
   if (sim.IsInCheck(piece->GetColor())) {
     return false;
   }
@@ -260,7 +261,7 @@ bool Board::HasAnyLegalMove(Color side) const {
       auto moves = piece->ValidMoves({row, col}, *this);
       for (const auto& to : moves) {
         Board sim = *this;
-        sim.Apply(Move{Square{row, col}, to, std::nullopt});
+        sim.ApplyNoHistory(Move{Square{row, col}, to, std::nullopt});
         if (!sim.IsInCheck(side)) {
           return true;
         }
@@ -270,7 +271,31 @@ bool Board::HasAnyLegalMove(Color side) const {
   return false;
 }
 
+void Board::Undo() {
+  if (history_.empty()) {
+    return;
+  }
+  const Board& snap = *history_.back().pre_state;
+  for (int row = 0; row < kSize; ++row) {
+    for (int col = 0; col < kSize; ++col) {
+      if (snap.grid_[row][col]) {
+        grid_[row][col] = snap.grid_[row][col]->Clone();
+      } else {
+        grid_[row][col] = nullptr;
+      }
+    }
+  }
+  side_to_move_ = snap.side_to_move_;
+  castling_ = snap.castling_;
+  history_.pop_back();
+}
+
 void Board::Apply(const Move& move) {
+  history_.push_back(HistoryEntry{std::make_unique<const Board>(*this), move});
+  ApplyNoHistory(move);
+}
+
+void Board::ApplyNoHistory(const Move& move) {
   Piece* moving = At(move.from);
   if (!moving) {
     return;
