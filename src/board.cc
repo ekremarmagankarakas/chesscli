@@ -77,21 +77,6 @@ void Board::Setup() {
   grid_[7][4] = std::make_unique<King>(Color::kBlack);
 }
 
-void Board::Print() const {
-  for (int row = kSize - 1; row >= 0; --row) {
-    std::cout << (row + 1) << ' ';
-    for (int col = 0; col < kSize; ++col) {
-      if (grid_[row][col]) {
-        std::cout << grid_[row][col]->GetSymbol() << ' ';
-      } else {
-        std::cout << ". ";
-      }
-    }
-    std::cout << '\n';
-  }
-  std::cout << "  a b c d e f g h\n";
-}
-
 Piece* Board::At(const Square& square) const {
   return At(square.row, square.col);
 }

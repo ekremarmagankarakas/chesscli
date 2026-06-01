@@ -7,11 +7,11 @@
 #include "move.h"
 #include "parser.h"
 
-Game::Game() = default;
+Game::Game(std::unique_ptr<View> view) : view_(std::move(view)) {};
 
 void Game::Play() {
   while (!is_game_over_) {
-    board_.Print();
+    view_->Render(board_);
     std::string input;
     if (!std::getline(std::cin, input)) {
       break;
@@ -27,11 +27,11 @@ void Game::Play() {
     Parser parser(input);
     std::optional<Move> move = parser.parse();
     if (!move) {
-      std::cout << "Bad input " << input << std::endl;
+      view_->ShowMessage("Bad Input " + input);
       continue;
     }
     if (!board_.IsLegal(*move)) {
-      std::cout << "Illegal move " << input << std::endl;
+      view_->ShowMessage("Illegal Move " + input);
       continue;
     }
 
@@ -41,13 +41,13 @@ void Game::Play() {
       Color opponent =
           board_.ToMove() == Color::kWhite ? Color::kBlack : Color::kWhite;
       if (opponent == Color::kWhite) {
-        std::cout << "WHITE WON!" << std::endl;
+        view_->ShowGameOver("WHITE WON!");
       } else {
-        std::cout << "BLACK WON!" << std::endl;
+        view_->ShowGameOver("BLACK WON!");
       }
       is_game_over_ = true;
     } else if (board_.IsStalemate()) {
-      std::cout << "STALEMATE!" << std::endl;
+      view_->ShowGameOver("STALEMATE!");
       is_game_over_ = true;
     }
   }

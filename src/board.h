@@ -21,7 +21,6 @@ class Board {
   Board& operator=(Board&&) = default;
 
   void Setup();
-  void Print() const;
 
   Piece* At(const Square& square) const;
   Piece* At(int row, int col) const;
