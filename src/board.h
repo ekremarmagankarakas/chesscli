@@ -46,8 +46,11 @@ class Board {
   std::optional<Move> LastMove() const;
 
  private:
+  static constexpr int kFiftyMoveLimit = 100;  // plies (50 full moves)
+
   std::array<std::array<std::unique_ptr<Piece>, kSize>, kSize> grid_;
   Color side_to_move_ = Color::kWhite;
+  int halfmove_clock_ = 0;
   CastlingRights castling_;
   std::vector<HistoryEntry> history_;
 

@@ -41,3 +41,16 @@ TEST_CASE("en passant capture") {
   CHECK(b.At(5, 3) != nullptr);  // pawn on d6
   CHECK(b.At(4, 3) == nullptr);  // captured pawn gone
 }
+
+TEST_CASE("50 Move rule triggers draw") {
+  Board b;
+  // Shuffle knights back and forth 50 times each side.
+  for (int i = 0; i < 25; ++i) {
+    b.Apply(Move{{0, 1}, {2, 2}, std::nullopt});  // Nb1-c3
+    b.Apply(Move{{7, 1}, {5, 2}, std::nullopt});  // Nb8-c6
+    b.Apply(Move{{2, 2}, {0, 1}, std::nullopt});  // Nc3-b1
+    b.Apply(Move{{5, 2}, {7, 1}, std::nullopt});  // Nc6-b8
+  }
+  // 100 knight plies, no pawn/capture.
+  CHECK(b.Result() == GameResult::kFiftyMoveDraw);
+}
