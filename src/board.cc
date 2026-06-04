@@ -242,6 +242,18 @@ bool Board::IsStalemate() const {
   return !HasAnyLegalMove(side);
 }
 
+std::optional<GameResult> Board::Result() const {
+  Color side = side_to_move_;
+  if (HasAnyLegalMove(side)) {
+    return std::nullopt;
+  }
+  if (IsInCheck(side)) {
+    return side == Color::kWhite ? GameResult::kBlackWins
+                                 : GameResult::kWhiteWins;
+  }
+  return GameResult::kStalemate;
+}
+
 bool Board::HasAnyLegalMove(Color side) const {
   for (int row = 0; row < kSize; ++row) {
     for (int col = 0; col < kSize; ++col) {

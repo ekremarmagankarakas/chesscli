@@ -1,16 +1,7 @@
 #pragma once
 
-#include <optional>
-#include <string>
+#include <string_view>
 
-#include "move.h"
+#include "command.h"
 
-class Parser {
- public:
-  Parser(const std::string& input);
-
-  std::optional<Move> parse();
-
- private:
-  std::string input_;
-};
+Command Parse(std::string_view input);

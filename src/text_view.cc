@@ -21,8 +21,37 @@ void TextView::Render(const Board& board) {
   std::cout << "  a b c d e f g h\n";
 }
 
-void TextView::ShowMessage(std::string_view msg) { std::cout << msg << '\n'; }
+void TextView::ShowIllegalMove(std::string_view input) {
+  std::cout << "Illegal move: " << input << '\n';
+}
 
-void TextView::ShowGameOver(std::string_view reason) {
-  std::cout << reason << '\n';
+void TextView::ShowParseError(ParseError err, std::string_view input) {
+  switch (err) {
+    case ParseError::kEmpty:
+      std::cout << "Empty input.\n";
+      return;
+    case ParseError::kBadSyntax:
+      std::cout << "Bad input: " << input << '\n';
+      return;
+    case ParseError::kBadSquare:
+      std::cout << "Unknown square: " << input << '\n';
+      return;
+    case ParseError::kBadPromotion:
+      std::cout << "Unknown promotion piece: " << input << '\n';
+      return;
+  }
+}
+
+void TextView::ShowResult(GameResult result) {
+  switch (result) {
+    case GameResult::kWhiteWins:
+      std::cout << "WHITE WON!\n";
+      return;
+    case GameResult::kBlackWins:
+      std::cout << "BLACK WON!\n";
+      return;
+    case GameResult::kStalemate:
+      std::cout << "STALEMATE!\n";
+      return;
+  }
 }

@@ -5,6 +5,7 @@
 #include <optional>
 
 #include "castling_rights.h"
+#include "game_result.h"
 #include "history_entry.h"
 #include "move.h"
 #include "piece.h"
@@ -37,6 +38,7 @@ class Board {
   bool IsCheckmate() const;
   bool IsStalemate() const;
   bool IsSquareAttacked(Square s, Color color) const;
+  std::optional<GameResult> Result() const;
 
   bool CanCastleKingside(Color color) const;
   bool CanCastleQueenside(Color color) const;

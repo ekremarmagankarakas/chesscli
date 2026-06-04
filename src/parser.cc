@@ -1,26 +1,35 @@
 #include "parser.h"
 
 #include <optional>
+#include <string_view>
 
 #include "move.h"
 #include "piece.h"
 #include "square.h"
 
-Parser::Parser(const std::string& input) : input_(input) {}
-
-std::optional<Move> Parser::parse() {
-  if (input_.size() < 4 || input_.size() > 5) {
-    return std::nullopt;
+Command Parse(std::string_view input) {
+  if (input.empty()) {
+    return ParseError::kEmpty;
   }
-  auto from = Square::FromAlgebraic(input_.substr(0, 2));
-  auto to = Square::FromAlgebraic(input_.substr(2, 2));
+  if (input == "quit" || input == "exit") {
+    return QuitCmd{};
+  }
+  if (input == "undo") {
+    return UndoCmd{};
+  }
+  if (input.size() < 4 || input.size() > 5) {
+    return ParseError::kBadSyntax;
+  }
+
+  auto from = Square::FromAlgebraic(input.substr(0, 2));
+  auto to = Square::FromAlgebraic(input.substr(2, 2));
   if (!from || !to) {
-    return std::nullopt;
+    return ParseError::kBadSquare;
   }
 
   std::optional<PieceType> promotion;
-  if (input_.size() == 5) {
-    switch (input_[4]) {
+  if (input.size() == 5) {
+    switch (input[4]) {
       case 'q':
         promotion = PieceType::kQueen;
         break;
@@ -34,9 +43,9 @@ std::optional<Move> Parser::parse() {
         promotion = PieceType::kKnight;
         break;
       default:
-        return std::nullopt;
+        return ParseError::kBadPromotion;
     }
   }
 
-  return Move(*from, *to, promotion);
+  return Move{*from, *to, promotion};
 }

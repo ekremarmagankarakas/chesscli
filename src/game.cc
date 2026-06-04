@@ -2,9 +2,21 @@
 
 #include <optional>
 #include <string>
+#include <string_view>
+#include <variant>
 
+#include "command.h"
 #include "move.h"
 #include "parser.h"
+
+namespace {
+template <class... Ts>
+struct Overloaded : Ts... {
+  using Ts::operator()...;
+};
+template <class... Ts>
+Overloaded(Ts...) -> Overloaded<Ts...>;
+}  // namespace
 
 Game::Game(std::unique_ptr<View> view,
            std::unique_ptr<InputSource> input_source)
@@ -17,40 +29,28 @@ void Game::Play() {
     if (!raw_input) {
       break;
     }
-    const std::string input = *raw_input;
-    if (input == "quit" || input == "exit") {
-      break;
-    }
-    if (input == "undo") {
-      board_.Undo();
-      continue;
-    }
+    const std::string& raw = *raw_input;
+    Command cmd = Parse(raw);
+    std::visit(
+        Overloaded{
+            [this, &raw](const Move& m) { HandleMove(m, raw); },
+            [this](QuitCmd) { is_game_over_ = true; },
+            [this](UndoCmd) { board_.Undo(); },
+            [this, &raw](ParseError e) { view_->ShowParseError(e, raw); },
+        },
+        cmd);
+  }
+}
 
-    Parser parser(input);
-    std::optional<Move> move = parser.parse();
-    if (!move) {
-      view_->ShowMessage("Bad Input " + input);
-      continue;
-    }
-    if (!board_.IsLegal(*move)) {
-      view_->ShowMessage("Illegal Move " + input);
-      continue;
-    }
+void Game::HandleMove(const Move& move, std::string_view raw) {
+  if (!board_.IsLegal(move)) {
+    view_->ShowIllegalMove(raw);
+    return;
+  }
+  board_.Apply(move);
 
-    board_.Apply(*move);
-
-    if (board_.IsCheckmate()) {
-      Color opponent =
-          board_.ToMove() == Color::kWhite ? Color::kBlack : Color::kWhite;
-      if (opponent == Color::kWhite) {
-        view_->ShowGameOver("WHITE WON!");
-      } else {
-        view_->ShowGameOver("BLACK WON!");
-      }
-      is_game_over_ = true;
-    } else if (board_.IsStalemate()) {
-      view_->ShowGameOver("STALEMATE!");
-      is_game_over_ = true;
-    }
+  if (auto result = board_.Result()) {
+    view_->ShowResult(*result);
+    is_game_over_ = true;
   }
 }

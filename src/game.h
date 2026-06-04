@@ -1,10 +1,13 @@
 #pragma once
 
 #include <memory>
+#include <string_view>
 
 #include "board.h"
 #include "input_source.h"
 #include "view.h"
+
+struct Move;
 
 class Game {
  public:
@@ -13,6 +16,8 @@ class Game {
   void Play();
 
  private:
+  void HandleMove(const Move& move, std::string_view raw);
+
   Board board_;
   std::unique_ptr<View> view_;
   std::unique_ptr<InputSource> input_source_;
