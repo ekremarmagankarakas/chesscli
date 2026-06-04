@@ -15,7 +15,9 @@
 Board::Board() { Setup(); }
 
 Board::Board(const Board& other)
-    : side_to_move_(other.side_to_move_), castling_(other.castling_) {
+    : side_to_move_(other.side_to_move_),
+      halfmove_clock_(other.halfmove_clock_),
+      castling_(other.castling_) {
   for (int row = 0; row < kSize; ++row) {
     for (int col = 0; col < kSize; ++col) {
       if (other.grid_[row][col]) {
@@ -33,6 +35,7 @@ Board& Board::operator=(const Board& other) {
   }
   side_to_move_ = other.side_to_move_;
   castling_ = other.castling_;
+  halfmove_clock_ = other.halfmove_clock_;
   for (int row = 0; row < kSize; ++row) {
     for (int col = 0; col < kSize; ++col) {
       if (other.grid_[row][col]) {
@@ -244,14 +247,18 @@ bool Board::IsStalemate() const {
 
 std::optional<GameResult> Board::Result() const {
   Color side = side_to_move_;
-  if (HasAnyLegalMove(side)) {
-    return std::nullopt;
-  }
-  if (IsInCheck(side)) {
+  bool has_legal_move = HasAnyLegalMove(side);
+  if (!has_legal_move && IsInCheck(side)) {
     return side == Color::kWhite ? GameResult::kBlackWins
                                  : GameResult::kWhiteWins;
   }
-  return GameResult::kStalemate;
+  if (!has_legal_move) {
+    return GameResult::kStalemate;
+  }
+  if (halfmove_clock_ >= kFiftyMoveLimit) {
+    return GameResult::kFiftyMoveDraw;
+  }
+  return std::nullopt;
 }
 
 bool Board::HasAnyLegalMove(Color side) const {
@@ -310,6 +317,15 @@ void Board::ApplyNoHistory(const Move& move) {
   // adjacent pawn that just double-pushed.
   bool is_ep_capture =
       ptype == PieceType::kPawn && move.from.col != move.to.col && !At(move.to);
+  bool is_capture = At(move.to) != nullptr || is_ep_capture;
+  bool is_pawn_move = ptype == PieceType::kPawn;
+
+  if (is_capture || is_pawn_move) {
+    halfmove_clock_ = 0;
+  } else {
+    ++halfmove_clock_;
+  }
+
   if (is_ep_capture) {
     grid_[move.from.row][move.to.col] = nullptr;
   }

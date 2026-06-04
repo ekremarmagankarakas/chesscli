@@ -50,6 +50,9 @@ void TextView::ShowResult(GameResult result) {
     case GameResult::kBlackWins:
       std::cout << "BLACK WON!\n";
       return;
+    case GameResult::kFiftyMoveDraw:
+      std::cout << "DRAW BY 50-MOVE RULE!\n";
+      return;
     case GameResult::kStalemate:
       std::cout << "STALEMATE!\n";
       return;

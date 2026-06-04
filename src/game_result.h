@@ -1,3 +1,3 @@
 #pragma once
 
-enum class GameResult { kWhiteWins, kBlackWins, kStalemate };
+enum class GameResult { kWhiteWins, kBlackWins, kStalemate, kFiftyMoveDraw };
