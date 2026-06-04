@@ -297,6 +297,7 @@ void Board::Undo() {
   }
   side_to_move_ = snap.side_to_move_;
   castling_ = snap.castling_;
+  halfmove_clock_ = snap.halfmove_clock_;
   history_.pop_back();
 }
 
