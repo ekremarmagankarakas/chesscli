@@ -53,6 +53,9 @@ void TextView::ShowResult(GameResult result) {
     case GameResult::kFiftyMoveDraw:
       std::cout << "DRAW BY 50-MOVE RULE!\n";
       return;
+    case GameResult::kThreefoldDraw:
+      std::cout << "DRAW BY THREEFOLD REPETITION!\n";
+      return;
     case GameResult::kStalemate:
       std::cout << "STALEMATE!\n";
       return;

@@ -68,3 +68,14 @@ TEST_CASE("50 Move rule triggers draw") {
   // 100 knight plies, no pawn/capture.
   CHECK(b.Result() == GameResult::kFiftyMoveDraw);
 }
+
+TEST_CASE("threefold repetition triggers draw") {
+  Board b;
+  for (int i = 0; i < 2; ++i) {
+    b.Apply(Move{{0, 1}, {2, 2}, std::nullopt});
+    b.Apply(Move{{7, 1}, {5, 2}, std::nullopt});
+    b.Apply(Move{{2, 2}, {0, 1}, std::nullopt});
+    b.Apply(Move{{5, 2}, {7, 1}, std::nullopt});
+  }
+  CHECK(b.Result() == GameResult::kThreefoldDraw);
+}
