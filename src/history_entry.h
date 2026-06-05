@@ -1,12 +1,9 @@
 #pragma once
 
-#include <memory>
-
+#include "board_state.h"
 #include "move.h"
 
-class Board;  // forward declaration
-
 struct HistoryEntry {
-  std::unique_ptr<const Board> pre_state;
+  BoardState pre_state;
   Move move;
 };

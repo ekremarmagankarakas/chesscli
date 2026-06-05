@@ -15,7 +15,7 @@ std::unique_ptr<Piece> Rook::Clone() const {
 std::vector<Square> Rook::ValidMoves(const Square& from,
                                      const Board& board) const {
   std::vector<Square> moves;
-  // Directions: up-right, up-left, down-right, down-left
+  // Directions: right, up, left, down (orthogonal).
   const std::vector<std::pair<int, int>> directions = {
       {0, 1}, {1, 0}, {0, -1}, {-1, 0}};
 

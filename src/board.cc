@@ -10,14 +10,14 @@
 #include "pieces/pawn.h"
 #include "pieces/queen.h"
 #include "pieces/rook.h"
-#include "square.h"
 
 Board::Board() { Setup(); }
 
 Board::Board(const Board& other)
     : side_to_move_(other.side_to_move_),
       halfmove_clock_(other.halfmove_clock_),
-      castling_(other.castling_) {
+      castling_(other.castling_),
+      ep_file_(other.ep_file_) {
   for (int row = 0; row < kSize; ++row) {
     for (int col = 0; col < kSize; ++col) {
       if (other.grid_[row][col]) {
@@ -36,6 +36,7 @@ Board& Board::operator=(const Board& other) {
   side_to_move_ = other.side_to_move_;
   castling_ = other.castling_;
   halfmove_clock_ = other.halfmove_clock_;
+  ep_file_ = other.ep_file_;
   for (int row = 0; row < kSize; ++row) {
     for (int col = 0; col < kSize; ++col) {
       if (other.grid_[row][col]) {
@@ -56,6 +57,9 @@ void Board::Setup() {
   }
   side_to_move_ = Color::kWhite;
   castling_ = CastlingRights{};
+  ep_file_ = -1;
+  halfmove_clock_ = 0;
+  history_.clear();
 
   for (int col = 0; col < kSize; ++col) {
     grid_[1][col] = std::make_unique<Pawn>(Color::kWhite);
@@ -79,6 +83,86 @@ void Board::Setup() {
   grid_[7][4] = std::make_unique<King>(Color::kBlack);
 }
 
+BoardState Board::Snapshot() const {
+  std::array<uint8_t, 64> squares = {};
+  for (auto it = grid_.begin(); it != grid_.end(); ++it) {
+    for (auto jt = it->begin(); jt != it->end(); ++jt) {
+      if (*jt) {
+        uint8_t piece = 0;
+        switch ((*jt)->GetType()) {
+          case PieceType::kPawn:
+            piece = 1;
+            break;
+          case PieceType::kKnight:
+            piece = 2;
+            break;
+          case PieceType::kBishop:
+            piece = 3;
+            break;
+          case PieceType::kRook:
+            piece = 4;
+            break;
+          case PieceType::kQueen:
+            piece = 5;
+            break;
+          case PieceType::kKing:
+            piece = 6;
+            break;
+        }
+        if ((*jt)->GetColor() == Color::kBlack) {
+          piece += 6;  // black pieces encoded as 7-12
+        }
+        squares[(it - grid_.begin()) * kSize + (jt - it->begin())] = piece;
+      } else {
+        squares[(it - grid_.begin()) * kSize + (jt - it->begin())] = 0;
+      }
+    }
+  }
+  return BoardState(squares, side_to_move_ == Color::kWhite ? 0 : 1,
+                    castling_.Snapshot(), ep_file_, halfmove_clock_);
+}
+
+void Board::Restore(const BoardState& board_state) {
+  for (int sq = 0; sq < 64; ++sq) {
+    int row = sq / kSize;
+    int col = sq % kSize;
+    uint8_t code = board_state.squares[sq];
+    if (code == 0) {
+      grid_[row][col] = nullptr;
+      continue;
+    }
+    Color color = code <= 6 ? Color::kWhite : Color::kBlack;
+    uint8_t type = code <= 6 ? code : code - 6;
+    switch (type) {
+      case 1:
+        grid_[row][col] = std::make_unique<Pawn>(color);
+        break;
+      case 2:
+        grid_[row][col] = std::make_unique<Knight>(color);
+        break;
+      case 3:
+        grid_[row][col] = std::make_unique<Bishop>(color);
+        break;
+      case 4:
+        grid_[row][col] = std::make_unique<Rook>(color);
+        break;
+      case 5:
+        grid_[row][col] = std::make_unique<Queen>(color);
+        break;
+      case 6:
+        grid_[row][col] = std::make_unique<King>(color);
+        break;
+      default:
+        grid_[row][col] = nullptr;
+        break;  // corrupt input
+    }
+  }
+  side_to_move_ = board_state.side == 0 ? Color::kWhite : Color::kBlack;
+  castling_.Restore(board_state.castling);
+  ep_file_ = board_state.ep_file;
+  halfmove_clock_ = board_state.halfmove_clock;
+}
+
 Piece* Board::At(const Square& square) const {
   return At(square.row, square.col);
 }
@@ -98,20 +182,18 @@ bool Board::InBounds(int row, int col) {
 
 std::optional<Square> Board::FindPiece(const PieceType ptype,
                                        const Color color) const {
-  Square square;
   for (int row = 0; row < kSize; ++row) {
     for (int col = 0; col < kSize; ++col) {
       auto piece = At(row, col);
       if (piece && piece->GetType() == ptype && piece->GetColor() == color) {
-        square = {row, col};
-        return square;
+        return Square{row, col};
       }
     }
   }
-  return std::nullopt;  // Piece Not found
+  return std::nullopt;
 }
 
-bool Board::IsLegal(const Move& move) const {
+bool Board::IsLegal(const Move& move) {
   if (!InBounds(move.from) || !InBounds(move.to)) {
     return false;
   }
@@ -136,21 +218,14 @@ bool Board::IsLegal(const Move& move) const {
   }
 
   // Simulate and reject if own king attacked after.
-  Board sim = *this;
-  sim.ApplyNoHistory(move);
-  if (sim.IsInCheck(piece->GetColor())) {
-    return false;
-  }
-
-  return true;
+  BoardState snap = Snapshot();
+  ApplyNoHistory(move);
+  bool ok = !IsInCheck(piece->GetColor());
+  Restore(snap);
+  return ok;
 }
 
-std::optional<Move> Board::LastMove() const {
-  if (history_.empty()) {
-    return std::nullopt;
-  }
-  return history_.back().move;
-}
+int8_t Board::EpFile() const { return ep_file_; }
 
 bool Board::IsYourMove(const Piece& piece) const {
   return (piece.GetColor() == side_to_move_);
@@ -229,23 +304,7 @@ bool Board::CanCastleQueenside(Color color) const {
   return true;
 }
 
-bool Board::IsCheckmate() const {
-  Color side = side_to_move_;
-  if (!IsInCheck(side)) {
-    return false;
-  }
-  return !HasAnyLegalMove(side);
-}
-
-bool Board::IsStalemate() const {
-  Color side = side_to_move_;
-  if (IsInCheck(side)) {
-    return false;
-  }
-  return !HasAnyLegalMove(side);
-}
-
-std::optional<GameResult> Board::Result() const {
+std::optional<GameResult> Board::Result() {
   Color side = side_to_move_;
   bool has_legal_move = HasAnyLegalMove(side);
   if (!has_legal_move && IsInCheck(side)) {
@@ -261,7 +320,7 @@ std::optional<GameResult> Board::Result() const {
   return std::nullopt;
 }
 
-bool Board::HasAnyLegalMove(Color side) const {
+bool Board::HasAnyLegalMove(Color side) {
   for (int row = 0; row < kSize; ++row) {
     for (int col = 0; col < kSize; ++col) {
       auto piece = At(row, col);
@@ -270,9 +329,11 @@ bool Board::HasAnyLegalMove(Color side) const {
       }
       auto moves = piece->ValidMoves({row, col}, *this);
       for (const auto& to : moves) {
-        Board sim = *this;
-        sim.ApplyNoHistory(Move{Square{row, col}, to, std::nullopt});
-        if (!sim.IsInCheck(side)) {
+        BoardState snap = Snapshot();
+        ApplyNoHistory(Move{Square{row, col}, to, std::nullopt});
+        bool in_check = IsInCheck(side);
+        Restore(snap);
+        if (!in_check) {
           return true;
         }
       }
@@ -285,24 +346,12 @@ void Board::Undo() {
   if (history_.empty()) {
     return;
   }
-  const Board& snap = *history_.back().pre_state;
-  for (int row = 0; row < kSize; ++row) {
-    for (int col = 0; col < kSize; ++col) {
-      if (snap.grid_[row][col]) {
-        grid_[row][col] = snap.grid_[row][col]->Clone();
-      } else {
-        grid_[row][col] = nullptr;
-      }
-    }
-  }
-  side_to_move_ = snap.side_to_move_;
-  castling_ = snap.castling_;
-  halfmove_clock_ = snap.halfmove_clock_;
+  Restore(history_.back().pre_state);
   history_.pop_back();
 }
 
 void Board::Apply(const Move& move) {
-  history_.push_back(HistoryEntry{std::make_unique<const Board>(*this), move});
+  history_.push_back(HistoryEntry{Snapshot(), move});
   ApplyNoHistory(move);
 }
 
@@ -320,6 +369,12 @@ void Board::ApplyNoHistory(const Move& move) {
       ptype == PieceType::kPawn && move.from.col != move.to.col && !At(move.to);
   bool is_capture = At(move.to) != nullptr || is_ep_capture;
   bool is_pawn_move = ptype == PieceType::kPawn;
+
+  if (is_pawn_move && std::abs(move.to.row - move.from.row) == 2) {
+    ep_file_ = move.to.col;
+  } else {
+    ep_file_ = -1;
+  }
 
   if (is_capture || is_pawn_move) {
     halfmove_clock_ = 0;

@@ -17,7 +17,7 @@ std::unique_ptr<Piece> Queen::Clone() const {
 std::vector<Square> Queen::ValidMoves(const Square& from,
                                       const Board& board) const {
   std::vector<Square> moves;
-  // Directions: up-right, up-left, down-right, down-left
+  // All 8 directions: 4 diagonals + 4 orthogonals.
   const std::vector<std::pair<int, int>> directions = {
       {1, 1}, {1, -1}, {-1, 1}, {-1, -1}, {0, 1}, {1, 0}, {0, -1}, {-1, 0}};
 

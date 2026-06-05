@@ -1,9 +1,11 @@
 #pragma once
 
 #include <array>
+#include <cstdint>
 #include <memory>
 #include <optional>
 
+#include "board_state.h"
 #include "castling_rights.h"
 #include "game_result.h"
 #include "history_entry.h"
@@ -34,16 +36,17 @@ class Board {
   static bool InBounds(const Square& square);
   static bool InBounds(int row, int col);
 
-  bool IsLegal(const Move& move) const;
-  bool IsCheckmate() const;
-  bool IsStalemate() const;
+  bool IsLegal(const Move& move);
   bool IsSquareAttacked(Square s, Color color) const;
-  std::optional<GameResult> Result() const;
+  std::optional<GameResult> Result();
 
   bool CanCastleKingside(Color color) const;
   bool CanCastleQueenside(Color color) const;
 
-  std::optional<Move> LastMove() const;
+  int8_t EpFile() const;
+
+  BoardState Snapshot() const;
+  void Restore(const BoardState& board_state);
 
  private:
   static constexpr int kFiftyMoveLimit = 100;  // plies (50 full moves)
@@ -53,12 +56,13 @@ class Board {
   int halfmove_clock_ = 0;
   CastlingRights castling_;
   std::vector<HistoryEntry> history_;
+  int8_t ep_file_ = -1;
 
   void ApplyNoHistory(const Move& move);
   bool IsInCheck(Color color) const;
   bool IsValidMove(const Move& move, const Piece& piece) const;
   bool IsYourMove(const Piece& piece) const;
-  bool HasAnyLegalMove(Color side) const;
+  bool HasAnyLegalMove(Color side);
   std::optional<Square> FindPiece(const PieceType ptype,
                                   const Color color) const;
 };

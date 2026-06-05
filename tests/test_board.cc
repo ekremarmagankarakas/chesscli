@@ -29,6 +29,20 @@ TEST_CASE("undo restores starting position") {
   CHECK(b.ToMove() == Color::kWhite);
 }
 
+TEST_CASE("multiple undos walk back through history") {
+  Board b;
+  b.Apply(Move{{1, 4}, {3, 4}, std::nullopt});  // e2-e4
+  b.Apply(Move{{6, 4}, {4, 4}, std::nullopt});  // e7-e5
+  b.Undo();
+  CHECK(b.At(4, 4) == nullptr);
+  CHECK(b.At(6, 4) != nullptr);
+  CHECK(b.ToMove() == Color::kBlack);
+  b.Undo();
+  CHECK(b.At(3, 4) == nullptr);
+  CHECK(b.At(1, 4) != nullptr);
+  CHECK(b.ToMove() == Color::kWhite);
+}
+
 TEST_CASE("en passant capture") {
   Board b;
   b.Apply(Move{{1, 4}, {3, 4}, std::nullopt});  // e2-e4

@@ -55,9 +55,7 @@ std::vector<Square> Pawn::ValidMoves(const Square& from,
     auto target = board.At(cr, cc);
     if (target && target->GetColor() != GetColor() &&
         target->GetType() == PieceType::kPawn) {
-      std::optional<Move> last_move = board.LastMove();
-      if (last_move && last_move->to == Square{cr, cc} &&
-          std::abs(last_move->from.row - last_move->to.row) == 2) {
+      if (board.EpFile() == cc) {
         moves.push_back({from.row + dir, cc});
       }
     }
