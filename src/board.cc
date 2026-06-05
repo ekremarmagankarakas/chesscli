@@ -13,42 +13,6 @@
 
 Board::Board() { Setup(); }
 
-Board::Board(const Board& other)
-    : side_to_move_(other.side_to_move_),
-      halfmove_clock_(other.halfmove_clock_),
-      castling_(other.castling_),
-      ep_file_(other.ep_file_) {
-  for (int row = 0; row < kSize; ++row) {
-    for (int col = 0; col < kSize; ++col) {
-      if (other.grid_[row][col]) {
-        grid_[row][col] = other.grid_[row][col]->Clone();
-      } else {
-        grid_[row][col] = nullptr;
-      }
-    }
-  }
-}
-
-Board& Board::operator=(const Board& other) {
-  if (this == &other) {
-    return *this;
-  }
-  side_to_move_ = other.side_to_move_;
-  castling_ = other.castling_;
-  halfmove_clock_ = other.halfmove_clock_;
-  ep_file_ = other.ep_file_;
-  for (int row = 0; row < kSize; ++row) {
-    for (int col = 0; col < kSize; ++col) {
-      if (other.grid_[row][col]) {
-        grid_[row][col] = other.grid_[row][col]->Clone();
-      } else {
-        grid_[row][col] = nullptr;
-      }
-    }
-  }
-  return *this;
-}
-
 void Board::Setup() {
   for (int row = 0; row < kSize; ++row) {
     for (int col = 0; col < kSize; ++col) {
@@ -163,11 +127,11 @@ void Board::Restore(const BoardState& board_state) {
   halfmove_clock_ = board_state.halfmove_clock;
 }
 
-Piece* Board::At(const Square& square) const {
+const Piece* Board::At(const Square& square) const {
   return At(square.row, square.col);
 }
 
-Piece* Board::At(int row, int col) const {
+const Piece* Board::At(int row, int col) const {
   if (!InBounds(row, col)) {
     return nullptr;
   }
@@ -198,7 +162,7 @@ bool Board::IsLegal(const Move& move) {
     return false;
   }
 
-  Piece* piece = At(move.from);
+  const Piece* piece = At(move.from);
   if (!piece) {
     return false;
   }
@@ -356,7 +320,7 @@ void Board::Apply(const Move& move) {
 }
 
 void Board::ApplyNoHistory(const Move& move) {
-  Piece* moving = At(move.from);
+  const Piece* moving = At(move.from);
   if (!moving) {
     return;
   }

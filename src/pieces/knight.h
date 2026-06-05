@@ -3,7 +3,7 @@
 #include "../piece.h"
 #include "../square.h"
 
-class Knight : public Piece {
+class Knight final : public Piece {
  public:
   explicit Knight(Color color);
 

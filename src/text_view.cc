@@ -9,7 +9,7 @@ void TextView::Render(const Board& board) {
   for (int row = Board::kSize - 1; row >= 0; --row) {
     std::cout << (row + 1) << ' ';
     for (int col = 0; col < Board::kSize; ++col) {
-      Piece* piece = board.At(row, col);
+      const Piece* piece = board.At(row, col);
       if (piece) {
         std::cout << piece->GetSymbol() << ' ';
       } else {

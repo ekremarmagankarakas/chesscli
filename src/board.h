@@ -18,15 +18,15 @@ class Board {
   static constexpr int kSize = 8;
 
   Board();
-  Board(const Board& other);
-  Board& operator=(const Board& other);
+  Board(const Board&) = delete;
+  Board& operator=(const Board&) = delete;
   Board(Board&&) = default;
   Board& operator=(Board&&) = default;
 
   void Setup();
 
-  Piece* At(const Square& square) const;
-  Piece* At(int row, int col) const;
+  const Piece* At(const Square& square) const;
+  const Piece* At(int row, int col) const;
 
   void Apply(const Move& move);
   void Undo();

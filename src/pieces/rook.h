@@ -4,7 +4,7 @@
 #include "../piece.h"
 #include "../square.h"
 
-class Rook : public Piece {
+class Rook final : public Piece {
  public:
   explicit Rook(Color color);
 

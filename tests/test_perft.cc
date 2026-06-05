@@ -13,7 +13,7 @@ static uint64_t Perft(Board& b, int depth) {
   uint64_t nodes = 0;
   for (int r = 0; r < 8; ++r) {
     for (int c = 0; c < 8; ++c) {
-      Piece* p = b.At(r, c);
+      const Piece* p = b.At(r, c);
       if (!p || p->GetColor() != b.ToMove()) {
         continue;
       }
@@ -31,9 +31,9 @@ static uint64_t Perft(Board& b, int depth) {
           if (!b.IsLegal(m)) {
             continue;
           }
-          Board sim = b;
-          sim.Apply(m);
-          nodes += Perft(sim, depth - 1);
+          b.Apply(m);
+          nodes += Perft(b, depth - 1);
+          b.Undo();
         }
       }
     }
