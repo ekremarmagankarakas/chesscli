@@ -36,6 +36,10 @@ void Game::Play() {
             [this, &raw](const Move& m) { HandleMove(m, raw); },
             [this](QuitCmd) { is_game_over_ = true; },
             [this](UndoCmd) { board_.Undo(); },
+            [this](ResignCmd) {
+              view_->ShowResult(board_.HandleResign());
+              is_game_over_ = true;
+            },
             [this, &raw](ParseError e) { view_->ShowParseError(e, raw); },
         },
         cmd);

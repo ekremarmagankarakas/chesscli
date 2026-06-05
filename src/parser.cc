@@ -17,6 +17,9 @@ Command Parse(std::string_view input) {
   if (input == "undo") {
     return UndoCmd{};
   }
+  if (input == "resign") {
+    return ResignCmd{};
+  }
   if (input.size() < 4 || input.size() > 5) {
     return ParseError::kBadSyntax;
   }

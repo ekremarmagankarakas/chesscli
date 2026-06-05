@@ -79,3 +79,10 @@ TEST_CASE("threefold repetition triggers draw") {
   }
   CHECK(b.Result() == GameResult::kThreefoldDraw);
 }
+
+TEST_CASE("resign triggers other side to win") {
+  Board b;
+  b.Apply(Move{{0, 1}, {2, 2}, std::nullopt});
+  b.Apply(Move{{7, 1}, {5, 2}, std::nullopt});
+  CHECK(b.HandleResign() == GameResult::kBlackWins);
+}

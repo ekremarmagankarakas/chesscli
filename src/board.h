@@ -39,6 +39,7 @@ class Board {
   bool IsLegal(const Move& move);
   bool IsSquareAttacked(Square s, Color color) const;
   std::optional<GameResult> Result();
+  GameResult HandleResign() const;
 
   bool CanCastleKingside(Color color) const;
   bool CanCastleQueenside(Color color) const;
