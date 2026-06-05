@@ -301,6 +301,11 @@ std::optional<GameResult> Board::Result() {
   return std::nullopt;
 }
 
+GameResult Board::HandleResign() const {
+  return side_to_move_ == Color::kWhite ? GameResult::kBlackWins
+                                        : GameResult::kWhiteWins;
+}
+
 bool Board::HasAnyLegalMove(Color side) {
   for (int row = 0; row < kSize; ++row) {
     for (int col = 0; col < kSize; ++col) {

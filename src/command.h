@@ -7,5 +7,6 @@
 
 struct QuitCmd {};
 struct UndoCmd {};
+struct ResignCmd {};
 
-using Command = std::variant<Move, QuitCmd, UndoCmd, ParseError>;
+using Command = std::variant<Move, QuitCmd, UndoCmd, ResignCmd, ParseError>;
