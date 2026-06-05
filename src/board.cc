@@ -138,6 +138,20 @@ const Piece* Board::At(int row, int col) const {
   return grid_[row][col].get();
 }
 
+bool Board::IsThreefold() const {
+  BoardState current = Snapshot();
+  int count = 1;
+  for (const auto& entry : history_) {
+    if (entry.pre_state == current) {
+      ++count;
+      if (count >= 3) {
+        return true;
+      }
+    }
+  }
+  return false;
+}
+
 bool Board::InBounds(const Square& s) { return InBounds(s.row, s.col); }
 
 bool Board::InBounds(int row, int col) {
@@ -280,6 +294,9 @@ std::optional<GameResult> Board::Result() {
   }
   if (halfmove_clock_ >= kFiftyMoveLimit) {
     return GameResult::kFiftyMoveDraw;
+  }
+  if (IsThreefold()) {
+    return GameResult::kThreefoldDraw;
   }
   return std::nullopt;
 }
