@@ -24,6 +24,12 @@ void TextView::Render(const Board& board) {
 
 void TextView::ShowMessage(std::string_view msg) { std::cout << msg << '\n'; }
 
+void TextView::ShowHistory(const Board& board) {
+  for (const auto& entry : board.GetHistory()) {
+    std::cout << MoveToUCI(entry.move) << '\n';
+  }
+}
+
 void TextView::ShowIllegalMove(std::string_view input) {
   std::cout << "Illegal move: " << input << '\n';
 }

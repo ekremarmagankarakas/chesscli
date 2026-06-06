@@ -52,6 +52,7 @@ void Game::Play() {
               is_game_over_ = false;
               view_->ShowMessage("Game Reset");
             },
+            [this](HistoryCmd) { view_->ShowHistory(board_); },
             [this](ResignCmd) {
               view_->ShowResult(board_.HandleResign());
               is_game_over_ = true;

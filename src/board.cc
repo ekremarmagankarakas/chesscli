@@ -232,6 +232,8 @@ bool Board::InBounds(int row, int col) {
   return row >= 0 && row < kSize && col >= 0 && col < kSize;
 }
 
+const std::vector<HistoryEntry>& Board::GetHistory() const { return history_; }
+
 std::optional<Square> Board::FindPiece(const PieceType ptype,
                                        const Color color) const {
   for (int row = 0; row < kSize; ++row) {
