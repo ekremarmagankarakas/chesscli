@@ -14,11 +14,14 @@
 namespace {
 
 const char* kUsage =
-    "Usage: chesscli [--unicode] [--engine DEPTH] [--play-black] [--help]\n"
-    "  --unicode        Render board with Unicode pieces and colors\n"
-    "  --engine DEPTH   Enable minimax engine at given search depth (e.g. 3)\n"
-    "  --play-black     You play black; engine plays white (default: "
-    "opposite)\n"
+    "Usage: chesscli [--text] [--engine DEPTH] [--no-engine] [--play-black]\n"
+    "                [--help]\n"
+    "Defaults: Unicode view, minimax engine at depth 3 playing Black.\n"
+    "\n"
+    "  --text           Use ASCII view instead of Unicode\n"
+    "  --engine DEPTH   Set minimax search depth (default 3)\n"
+    "  --no-engine      Disable engine (two-player mode)\n"
+    "  --play-black     You play Black; engine plays White\n"
     "  --help, -h       Show this help\n"
     "\n"
     "In-game commands: move (e.g. e2e4 or e7e8q), undo, reset, history,\n"
@@ -27,14 +30,16 @@ const char* kUsage =
 }  // namespace
 
 int main(int argc, char* argv[]) {
-  bool unicode = false;
-  int engine_depth = 0;  // 0 = no engine
+  bool unicode = true;
+  int engine_depth = 3;
   Color engine_side = Color::kBlack;
 
   for (int i = 1; i < argc; ++i) {
     std::string_view arg = argv[i];
-    if (arg == "--unicode") {
-      unicode = true;
+    if (arg == "--text" || arg == "--ascii") {
+      unicode = false;
+    } else if (arg == "--unicode") {
+      unicode = true;  // explicit; already the default
     } else if (arg == "--help" || arg == "-h") {
       std::cout << kUsage;
       return 0;
@@ -49,6 +54,8 @@ int main(int argc, char* argv[]) {
         std::cerr << "--engine depth must be >= 1\n";
         return 2;
       }
+    } else if (arg == "--no-engine" || arg == "--solo") {
+      engine_depth = 0;
     } else if (arg == "--play-black") {
       engine_side = Color::kWhite;
     } else {
