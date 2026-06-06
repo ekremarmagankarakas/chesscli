@@ -6,7 +6,7 @@
 #include "game_result.h"
 #include "piece.h"
 
-void TextView::Render(const Board& board) {
+void TextView::Render(const Board& board, bool game_over) {
   for (int row = Board::kSize - 1; row >= 0; --row) {
     std::cout << (row + 1) << ' ';
     for (int col = 0; col < Board::kSize; ++col) {
@@ -20,6 +20,10 @@ void TextView::Render(const Board& board) {
     std::cout << '\n';
   }
   std::cout << "  a b c d e f g h\n";
+  if (!game_over) {
+    std::cout << (board.ToMove() == Color::kWhite ? "White" : "Black")
+              << " to move\n";
+  }
 }
 
 void TextView::ShowMessage(std::string_view msg) { std::cout << msg << '\n'; }

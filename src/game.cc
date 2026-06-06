@@ -33,7 +33,7 @@ Game::Game(std::unique_ptr<View> view,
     : view_(std::move(view)), input_source_(std::move(input_source)) {}
 
 void Game::Play() {
-  view_->Render(board_);
+  view_->Render(board_, is_game_over_);
   while (!quit_) {
     std::optional<std::string> raw_input = input_source_->ReadLine();
     if (!raw_input) {
@@ -70,7 +70,7 @@ void Game::Play() {
         },
         cmd);
     if (!quit_) {
-      view_->Render(board_);
+      view_->Render(board_, is_game_over_);
     }
   }
 }

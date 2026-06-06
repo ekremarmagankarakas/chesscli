@@ -57,7 +57,7 @@ bool IsHighlighted(int row, int col, const std::optional<Move>& last) {
 
 }  // namespace
 
-void UnicodeView::Render(const Board& board) {
+void UnicodeView::Render(const Board& board, bool game_over) {
   // Clear visible screen + scrollback, move cursor to home.
   std::cout << "\033[2J\033[3J\033[H";
 
@@ -87,6 +87,12 @@ void UnicodeView::Render(const Board& board) {
     std::cout << '\n';
   }
   std::cout << FG_LABEL << "   a  b  c  d  e  f  g  h" << RESET << '\n';
+
+  if (!game_over) {
+    bool white_to_move = board.ToMove() == Color::kWhite;
+    std::cout << FG_WHITE << (white_to_move ? "White" : "Black") << " to move"
+              << RESET << '\n';
+  }
 
   // Drain pending messages below the board (single composed frame).
   for (const auto& m : pending_) {
