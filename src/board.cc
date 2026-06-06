@@ -385,6 +385,39 @@ GameResult Board::HandleResign() const {
                                         : GameResult::kWhiteWins;
 }
 
+std::vector<Move> Board::LegalMoves() {
+  std::vector<Move> result;
+  Color side = side_to_move_;
+  int last_rank = side == Color::kWhite ? 7 : 0;
+  for (int row = 0; row < kSize; ++row) {
+    for (int col = 0; col < kSize; ++col) {
+      const Piece* p = At(row, col);
+      if (!p || p->GetColor() != side) {
+        continue;
+      }
+      bool is_pawn = p->GetType() == PieceType::kPawn;
+      auto moves = p->ValidMoves({row, col}, *this);
+      for (const Square& dest : moves) {
+        if (is_pawn && dest.row == last_rank) {
+          for (PieceType promo : {PieceType::kQueen, PieceType::kRook,
+                                  PieceType::kBishop, PieceType::kKnight}) {
+            Move m{Square{row, col}, dest, promo};
+            if (IsLegal(m)) {
+              result.push_back(m);
+            }
+          }
+        } else {
+          Move m{Square{row, col}, dest, std::nullopt};
+          if (IsLegal(m)) {
+            result.push_back(m);
+          }
+        }
+      }
+    }
+  }
+  return result;
+}
+
 bool Board::HasAnyLegalMove(Color side) {
   for (int row = 0; row < kSize; ++row) {
     for (int col = 0; col < kSize; ++col) {

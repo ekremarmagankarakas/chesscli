@@ -4,7 +4,9 @@
 #include <string_view>
 
 #include "board.h"
+#include "engine.h"
 #include "input_source.h"
+#include "piece.h"
 #include "view.h"
 
 struct Move;
@@ -12,7 +14,9 @@ struct Move;
 class Game {
  public:
   explicit Game(std::unique_ptr<View> view,
-                std::unique_ptr<InputSource> input_source);
+                std::unique_ptr<InputSource> input_source,
+                std::unique_ptr<Engine> engine = nullptr,
+                Color engine_side = Color::kBlack);
   void Play();
 
  private:
@@ -21,6 +25,8 @@ class Game {
   Board board_;
   std::unique_ptr<View> view_;
   std::unique_ptr<InputSource> input_source_;
+  std::unique_ptr<Engine> engine_;
+  Color engine_side_;
   bool is_game_over_ = false;
   bool quit_ = false;
 };

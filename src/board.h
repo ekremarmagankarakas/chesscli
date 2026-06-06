@@ -39,9 +39,11 @@ class Board {
   static bool InBounds(int row, int col);
 
   bool IsLegal(const Move& move);
+  bool IsInCheck(Color color) const;
   bool IsSquareAttacked(Square s, Color color) const;
   std::optional<GameResult> Result();
   GameResult HandleResign() const;
+  std::vector<Move> LegalMoves();
 
   bool CanCastleKingside(Color color) const;
   bool CanCastleQueenside(Color color) const;
@@ -66,7 +68,6 @@ class Board {
 
   void Setup();
   void ApplyNoHistory(const Move& move);
-  bool IsInCheck(Color color) const;
   bool IsValidMove(const Move& move, const Piece& piece) const;
   bool IsYourMove(const Piece& piece) const;
   bool HasAnyLegalMove(Color side);
