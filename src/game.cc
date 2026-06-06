@@ -40,7 +40,7 @@ void Game::Play() {
       break;
     }
     const std::string& raw = *raw_input;
-    Command cmd = Parse(raw);
+    Command cmd = Parse(raw, board_);
     std::visit(
         Overloaded{
             [this, &raw](const Move& m) {
