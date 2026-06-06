@@ -23,6 +23,9 @@ Command Parse(std::string_view input) {
   if (input == "resign") {
     return ResignCmd{};
   }
+  if (input == "history") {
+    return HistoryCmd{};
+  }
   if (input.size() < 4 || input.size() > 5) {
     return ParseError::kBadSyntax;
   }
