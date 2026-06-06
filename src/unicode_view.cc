@@ -2,6 +2,7 @@
 
 #include <iostream>
 #include <optional>
+#include <string>
 
 #include "board.h"
 #include "game_result.h"
@@ -57,6 +58,9 @@ bool IsHighlighted(int row, int col, const std::optional<Move>& last) {
 }  // namespace
 
 void UnicodeView::Render(const Board& board) {
+  // Clear visible screen + scrollback, move cursor to home.
+  std::cout << "\033[2J\033[3J\033[H";
+
   std::optional<Move> last;
   const auto& history = board.GetHistory();
   if (!history.empty()) {
@@ -83,35 +87,46 @@ void UnicodeView::Render(const Board& board) {
     std::cout << '\n';
   }
   std::cout << FG_LABEL << "   a  b  c  d  e  f  g  h" << RESET << '\n';
+
+  // Drain pending messages below the board (single composed frame).
+  for (const auto& m : pending_) {
+    std::cout << m << '\n';
+  }
+  pending_.clear();
 }
 
 void UnicodeView::ShowMessage(std::string_view msg) {
-  std::cout << msg << '\n';
+  pending_.emplace_back(msg);
 }
 
 void UnicodeView::ShowHistory(const Board& board) {
-  for (const auto& entry : board.GetHistory()) {
-    std::cout << MoveToUCI(entry.move) << '\n';
+  const auto& history = board.GetHistory();
+  if (history.empty()) {
+    pending_.emplace_back("(no moves yet)");
+    return;
+  }
+  for (const auto& entry : history) {
+    pending_.push_back(MoveToUCI(entry.move));
   }
 }
 
 void UnicodeView::ShowIllegalMove(std::string_view input) {
-  std::cout << "Illegal move: " << input << '\n';
+  pending_.push_back("Illegal move: " + std::string(input));
 }
 
 void UnicodeView::ShowParseError(ParseError err, std::string_view input) {
   switch (err) {
     case ParseError::kEmpty:
-      std::cout << "Empty input.\n";
+      pending_.emplace_back("Empty input.");
       return;
     case ParseError::kBadSyntax:
-      std::cout << "Bad input: " << input << '\n';
+      pending_.push_back("Bad input: " + std::string(input));
       return;
     case ParseError::kBadSquare:
-      std::cout << "Unknown square: " << input << '\n';
+      pending_.push_back("Unknown square: " + std::string(input));
       return;
     case ParseError::kBadPromotion:
-      std::cout << "Unknown promotion piece: " << input << '\n';
+      pending_.push_back("Unknown promotion piece: " + std::string(input));
       return;
   }
 }
@@ -119,22 +134,22 @@ void UnicodeView::ShowParseError(ParseError err, std::string_view input) {
 void UnicodeView::ShowResult(GameResult result) {
   switch (result) {
     case GameResult::kWhiteWins:
-      std::cout << "WHITE WON!\n";
+      pending_.emplace_back("WHITE WON!");
       return;
     case GameResult::kBlackWins:
-      std::cout << "BLACK WON!\n";
+      pending_.emplace_back("BLACK WON!");
       return;
     case GameResult::kFiftyMoveDraw:
-      std::cout << "DRAW BY 50-MOVE RULE!\n";
+      pending_.emplace_back("DRAW BY 50-MOVE RULE!");
       return;
     case GameResult::kThreefoldDraw:
-      std::cout << "DRAW BY THREEFOLD REPETITION!\n";
+      pending_.emplace_back("DRAW BY THREEFOLD REPETITION!");
       return;
     case GameResult::kInsufficientMaterialDraw:
-      std::cout << "DRAW BY INSUFFICIENT MATERIAL!\n";
+      pending_.emplace_back("DRAW BY INSUFFICIENT MATERIAL!");
       return;
     case GameResult::kStalemateDraw:
-      std::cout << "DRAW BY STALEMATE!\n";
+      pending_.emplace_back("DRAW BY STALEMATE!");
       return;
   }
 }

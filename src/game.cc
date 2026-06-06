@@ -33,10 +33,8 @@ Game::Game(std::unique_ptr<View> view,
     : view_(std::move(view)), input_source_(std::move(input_source)) {}
 
 void Game::Play() {
+  view_->Render(board_);
   while (!quit_) {
-    if (!is_game_over_) {
-      view_->Render(board_);
-    }
     std::optional<std::string> raw_input = input_source_->ReadLine();
     if (!raw_input) {
       break;
@@ -71,6 +69,9 @@ void Game::Play() {
             [this, &raw](ParseError e) { view_->ShowParseError(e, raw); },
         },
         cmd);
+    if (!quit_) {
+      view_->Render(board_);
+    }
   }
 }
 
