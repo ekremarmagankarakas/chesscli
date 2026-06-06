@@ -11,6 +11,7 @@ class View {
  public:
   virtual ~View() = default;
   virtual void Render(const Board& board) = 0;
+  virtual void ShowMessage(std::string_view msg) = 0;
   virtual void ShowIllegalMove(std::string_view input) = 0;
   virtual void ShowParseError(ParseError err, std::string_view input) = 0;
   virtual void ShowResult(GameResult result) = 0;

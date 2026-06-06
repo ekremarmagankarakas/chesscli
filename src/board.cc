@@ -47,6 +47,8 @@ void Board::Setup() {
   grid_[7][4] = std::make_unique<King>(Color::kBlack);
 }
 
+void Board::Reset() { return Setup(); }
+
 BoardState Board::Snapshot() const {
   std::array<uint8_t, 64> squares = {};
   for (auto it = grid_.begin(); it != grid_.end(); ++it) {

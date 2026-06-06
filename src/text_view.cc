@@ -22,6 +22,8 @@ void TextView::Render(const Board& board) {
   std::cout << "  a b c d e f g h\n";
 }
 
+void TextView::ShowMessage(std::string_view msg) { std::cout << msg << '\n'; }
+
 void TextView::ShowIllegalMove(std::string_view input) {
   std::cout << "Illegal move: " << input << '\n';
 }
