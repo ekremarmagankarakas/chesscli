@@ -23,8 +23,10 @@ Game::Game(std::unique_ptr<View> view,
     : view_(std::move(view)), input_source_(std::move(input_source)) {}
 
 void Game::Play() {
-  while (!is_game_over_) {
-    view_->Render(board_);
+  while (!quit_) {
+    if (!is_game_over_) {
+      view_->Render(board_);
+    }
     std::optional<std::string> raw_input = input_source_->ReadLine();
     if (!raw_input) {
       break;
@@ -33,9 +35,23 @@ void Game::Play() {
     Command cmd = Parse(raw);
     std::visit(
         Overloaded{
-            [this, &raw](const Move& m) { HandleMove(m, raw); },
-            [this](QuitCmd) { is_game_over_ = true; },
+            [this, &raw](const Move& m) {
+              if (is_game_over_) {
+                view_->ShowMessage("Game over. Type 'reset' or 'quit'.");
+                return;
+              }
+              HandleMove(m, raw);
+            },
+            [this](QuitCmd) {
+              is_game_over_ = true;
+              quit_ = true;
+            },
             [this](UndoCmd) { board_.Undo(); },
+            [this](ResetCmd) {
+              board_.Reset();
+              is_game_over_ = false;
+              view_->ShowMessage("Game Reset");
+            },
             [this](ResignCmd) {
               view_->ShowResult(board_.HandleResign());
               is_game_over_ = true;

@@ -14,6 +14,9 @@ Command Parse(std::string_view input) {
   if (input == "quit" || input == "exit") {
     return QuitCmd{};
   }
+  if (input == "reset") {
+    return ResetCmd{};
+  }
   if (input == "undo") {
     return UndoCmd{};
   }

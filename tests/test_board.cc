@@ -87,6 +87,21 @@ TEST_CASE("resign triggers other side to win") {
   CHECK(b.HandleResign() == GameResult::kBlackWins);
 }
 
+TEST_CASE("Reset restores starting position and clears history") {
+  Board b;
+  b.Apply(Move{{1, 4}, {3, 4}, std::nullopt});
+  b.Apply(Move{{6, 4}, {4, 4}, std::nullopt});
+  b.Reset();
+  CHECK(b.At(1, 4) != nullptr);
+  CHECK(b.At(3, 4) == nullptr);
+  CHECK(b.At(6, 4) != nullptr);
+  CHECK(b.At(4, 4) == nullptr);
+  CHECK(b.ToMove() == Color::kWhite);
+  // History cleared — Undo should be a no-op.
+  b.Undo();
+  CHECK(b.At(1, 4) != nullptr);
+}
+
 TEST_CASE("insufficient material: K vs K") {
   Board b;
   // Bypass setup by clearing then placing kings only.

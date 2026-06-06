@@ -23,7 +23,7 @@ class Board {
   Board(Board&&) = default;
   Board& operator=(Board&&) = default;
 
-  void Setup();
+  void Reset();
 
   const Piece* At(const Square& square) const;
   const Piece* At(int row, int col) const;
@@ -62,6 +62,7 @@ class Board {
   std::vector<HistoryEntry> history_;
   int8_t ep_file_ = -1;
 
+  void Setup();
   void ApplyNoHistory(const Move& move);
   bool IsInCheck(Color color) const;
   bool IsValidMove(const Move& move, const Piece& piece) const;

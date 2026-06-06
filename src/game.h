@@ -22,4 +22,5 @@ class Game {
   std::unique_ptr<View> view_;
   std::unique_ptr<InputSource> input_source_;
   bool is_game_over_ = false;
+  bool quit_ = false;
 };
