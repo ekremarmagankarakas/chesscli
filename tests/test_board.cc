@@ -86,3 +86,64 @@ TEST_CASE("resign triggers other side to win") {
   b.Apply(Move{{7, 1}, {5, 2}, std::nullopt});
   CHECK(b.HandleResign() == GameResult::kBlackWins);
 }
+
+TEST_CASE("insufficient material: K vs K") {
+  Board b;
+  // Bypass setup by clearing then placing kings only.
+  BoardState s{};
+  s.side = 0;
+  s.castling = 0;
+  s.ep_file = -1;
+  s.halfmove_clock = 0;
+  s.squares[0 * 8 + 4] = 6;   // white king e1
+  s.squares[7 * 8 + 4] = 12;  // black king e8
+  b.Restore(s);
+  CHECK(b.IsInsufficientMaterial());
+  CHECK(b.Result() == GameResult::kInsufficientMaterialDraw);
+}
+
+TEST_CASE("insufficient material: K+N vs K") {
+  Board b;
+  BoardState s{};
+  s.ep_file = -1;
+  s.squares[0 * 8 + 4] = 6;   // K
+  s.squares[7 * 8 + 4] = 12;  // k
+  s.squares[0 * 8 + 1] = 2;   // N
+  b.Restore(s);
+  CHECK(b.IsInsufficientMaterial());
+}
+
+TEST_CASE("sufficient material: K+R vs K") {
+  Board b;
+  BoardState s{};
+  s.ep_file = -1;
+  s.squares[0 * 8 + 4] = 6;
+  s.squares[7 * 8 + 4] = 12;
+  s.squares[0 * 8 + 0] = 4;  // R
+  b.Restore(s);
+  CHECK_FALSE(b.IsInsufficientMaterial());
+}
+
+TEST_CASE("insufficient material: K+B vs K+B same color squares") {
+  Board b;
+  BoardState s{};
+  s.ep_file = -1;
+  s.squares[0 * 8 + 4] = 6;
+  s.squares[7 * 8 + 4] = 12;
+  s.squares[0 * 8 + 2] = 3;  // White bishop on c1 (dark: 0+2=2)
+  s.squares[7 * 8 + 5] = 9;  // Black bishop on f8 (dark: 7+5=12)
+  b.Restore(s);
+  CHECK(b.IsInsufficientMaterial());
+}
+
+TEST_CASE("sufficient material: K+B vs K+B opposite color squares") {
+  Board b;
+  BoardState s{};
+  s.ep_file = -1;
+  s.squares[0 * 8 + 4] = 6;
+  s.squares[7 * 8 + 4] = 12;
+  s.squares[0 * 8 + 2] = 3;  // White bishop on c1 (dark)
+  s.squares[7 * 8 + 2] = 9;  // Black bishop on c8 (light: 7+2=9)
+  b.Restore(s);
+  CHECK_FALSE(b.IsInsufficientMaterial());
+}

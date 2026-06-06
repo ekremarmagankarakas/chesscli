@@ -45,6 +45,7 @@ class Board {
   bool CanCastleQueenside(Color color) const;
 
   bool IsThreefold() const;
+  bool IsInsufficientMaterial() const;
 
   int8_t EpFile() const;
 

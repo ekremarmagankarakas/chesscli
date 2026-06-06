@@ -3,6 +3,7 @@
 #include <iostream>
 
 #include "board.h"
+#include "game_result.h"
 #include "piece.h"
 
 void TextView::Render(const Board& board) {
@@ -56,8 +57,11 @@ void TextView::ShowResult(GameResult result) {
     case GameResult::kThreefoldDraw:
       std::cout << "DRAW BY THREEFOLD REPETITION!\n";
       return;
-    case GameResult::kStalemate:
-      std::cout << "STALEMATE!\n";
+    case GameResult::kInsufficientMaterialDraw:
+      std::cout << "DRAW BY INSUFFICIENT MATERIAL!\n";
+      return;
+    case GameResult::kStalemateDraw:
+      std::cout << "DRAW BY STALEMATE!\n";
       return;
   }
 }

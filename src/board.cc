@@ -152,6 +152,78 @@ bool Board::IsThreefold() const {
   return false;
 }
 
+bool Board::IsInsufficientMaterial() const {
+  int white_knights = 0, black_knights = 0;
+  int white_bishops_light = 0, white_bishops_dark = 0;
+  int black_bishops_light = 0, black_bishops_dark = 0;
+
+  for (int row = 0; row < kSize; ++row) {
+    for (int col = 0; col < kSize; ++col) {
+      const Piece* p = At(row, col);
+      if (!p) {
+        continue;
+      }
+      PieceType t = p->GetType();
+
+      // Any pawn/rook/queen = sufficient material. Bail out.
+      if (t == PieceType::kPawn || t == PieceType::kRook ||
+          t == PieceType::kQueen) {
+        return false;
+      }
+      if (t == PieceType::kKing) {
+        continue;
+      }
+
+      bool light_square = (row + col) % 2 == 1;
+      if (t == PieceType::kKnight) {
+        if (p->GetColor() == Color::kWhite) {
+          ++white_knights;
+        } else {
+          ++black_knights;
+        }
+      } else {  // bishop
+        if (p->GetColor() == Color::kWhite) {
+          if (light_square) {
+            ++white_bishops_light;
+          } else {
+            ++white_bishops_dark;
+          }
+        } else {
+          if (light_square) {
+            ++black_bishops_light;
+          } else {
+            ++black_bishops_dark;
+          }
+        }
+      }
+    }
+  }
+
+  int white_minors = white_knights + white_bishops_light + white_bishops_dark;
+  int black_minors = black_knights + black_bishops_light + black_bishops_dark;
+
+  // K vs K.
+  if (white_minors == 0 && black_minors == 0) {
+    return true;
+  }
+  // K+minor vs K.
+  if (white_minors == 1 && black_minors == 0) {
+    return true;
+  }
+  if (white_minors == 0 && black_minors == 1) {
+    return true;
+  }
+  // K+B vs K+B with same-color bishops only (no knights).
+  if (white_knights == 0 && black_knights == 0) {
+    bool all_on_light = white_bishops_dark == 0 && black_bishops_dark == 0;
+    bool all_on_dark = white_bishops_light == 0 && black_bishops_light == 0;
+    if (all_on_light || all_on_dark) {
+      return true;
+    }
+  }
+  return false;
+}
+
 bool Board::InBounds(const Square& s) { return InBounds(s.row, s.col); }
 
 bool Board::InBounds(int row, int col) {
@@ -290,13 +362,16 @@ std::optional<GameResult> Board::Result() {
                                  : GameResult::kWhiteWins;
   }
   if (!has_legal_move) {
-    return GameResult::kStalemate;
+    return GameResult::kStalemateDraw;
   }
   if (halfmove_clock_ >= kFiftyMoveLimit) {
     return GameResult::kFiftyMoveDraw;
   }
   if (IsThreefold()) {
     return GameResult::kThreefoldDraw;
+  }
+  if (IsInsufficientMaterial()) {
+    return GameResult::kInsufficientMaterialDraw;
   }
   return std::nullopt;
 }
