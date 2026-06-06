@@ -16,6 +16,16 @@ struct Overloaded : Ts... {
 };
 template <class... Ts>
 Overloaded(Ts...) -> Overloaded<Ts...>;
+
+const char* kInGameHelp =
+    "Commands:\n"
+    "  <from><to>[promo]  Make a move (e.g. e2e4 or e7e8q)\n"
+    "  undo               Undo last move\n"
+    "  reset              Reset game to starting position\n"
+    "  history            Show move history\n"
+    "  resign             Resign current side\n"
+    "  help               Show this help\n"
+    "  quit, exit         Exit";
 }  // namespace
 
 Game::Game(std::unique_ptr<View> view,
@@ -53,6 +63,7 @@ void Game::Play() {
               view_->ShowMessage("Game Reset");
             },
             [this](HistoryCmd) { view_->ShowHistory(board_); },
+            [this](HelpCmd) { view_->ShowMessage(kInGameHelp); },
             [this](ResignCmd) {
               view_->ShowResult(board_.HandleResign());
               is_game_over_ = true;
