@@ -3,7 +3,8 @@
 enum class GameResult {
   kWhiteWins,
   kBlackWins,
-  kStalemate,
+  kStalemateDraw,
   kFiftyMoveDraw,
-  kThreefoldDraw
+  kThreefoldDraw,
+  kInsufficientMaterialDraw
 };
