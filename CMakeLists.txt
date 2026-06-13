@@ -14,22 +14,23 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Wpedantic")
 set(CMAKE_CXX_FLAGS_DEBUG "-g -O0 -fsanitize=address,undefined")
 set(CMAKE_CXX_FLAGS_RELEASE "-O2")
 
-# Engine sources (everything except main.cc and the public-facade .cc).
+# Engine sources (everything except main.cc, the public facade, and the
+# TUI app which depends on ftxui and links only into the CLI exe).
 file(GLOB_RECURSE ENGINE_SOURCES
     "src/*.cc"
     "src/pieces/*.cc"
 )
-list(REMOVE_ITEM ENGINE_SOURCES "${CMAKE_CURRENT_SOURCE_DIR}/src/main.cc")
+list(REMOVE_ITEM ENGINE_SOURCES
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/main.cc"
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/tui_app.cc"
+)
 list(FILTER ENGINE_SOURCES EXCLUDE REGEX "/public/")
 
 add_library(chesscli_engine STATIC ${ENGINE_SOURCES})
 target_include_directories(chesscli_engine PUBLIC src)
 
-# Main executable.
-add_executable(chesscli src/main.cc)
-target_link_libraries(chesscli PRIVATE chesscli_engine)
-
 # Embedding library: engine + pimpl facade. Only the public/ header is exported.
+# ftxui is intentionally NOT linked here.
 add_library(chesscli_lib STATIC
   ${ENGINE_SOURCES}
   src/public/chess.cc
@@ -41,10 +42,32 @@ target_include_directories(chesscli_lib
 target_compile_features(chesscli_lib PUBLIC cxx_std_20)
 add_library(chess::chess ALIAS chesscli_lib)
 
+# ftxui (TUI library) — pulled in only for the CLI executable.
+include(FetchContent)
+FetchContent_Declare(ftxui
+    GIT_REPOSITORY https://github.com/ArthurSonzogni/FTXUI.git
+    GIT_TAG        v5.0.0
+)
+set(FTXUI_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
+set(FTXUI_BUILD_DOCS OFF CACHE BOOL "" FORCE)
+set(FTXUI_BUILD_TESTS OFF CACHE BOOL "" FORCE)
+FetchContent_MakeAvailable(ftxui)
+
+# Main executable: engine + main.cc + tui_app.cc.
+add_executable(chesscli
+    src/main.cc
+    src/tui_app.cc
+)
+target_link_libraries(chesscli PRIVATE
+    chesscli_engine
+    ftxui::screen
+    ftxui::dom
+    ftxui::component
+)
+
 # Tests (opt-in). doctest fetched via FetchContent.
 option(CHESSCLI_BUILD_TESTS "Build unit tests" ON)
 if(CHESSCLI_BUILD_TESTS AND EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/tests")
-  include(FetchContent)
   FetchContent_Declare(
     doctest
     GIT_REPOSITORY https://github.com/doctest/doctest.git
