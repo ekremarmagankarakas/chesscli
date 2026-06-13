@@ -17,11 +17,11 @@ using namespace chess;
 namespace {
 
 const char* kUsage =
-    "Usage: chesscli [--tui] [--text] [--engine DEPTH] [--no-engine]\n"
+    "Usage: chesscli [--no-tui] [--text] [--engine DEPTH] [--no-engine]\n"
     "                [--play-black] [--help]\n"
-    "Defaults: Unicode CLI view, minimax engine at depth 3 playing Black.\n"
+    "Defaults: TUI mode, minimax engine at depth 3 playing Black.\n"
     "\n"
-    "  --tui            Full-screen TUI with cursor nav + text input\n"
+    "  --no-tui         Use CLI view instead of full-screen TUI\n"
     "  --text           Use ASCII view instead of Unicode (CLI only)\n"
     "  --engine DEPTH   Set minimax search depth (default 3)\n"
     "  --no-engine      Disable engine (two-player mode)\n"
@@ -36,13 +36,15 @@ const char* kUsage =
 
 int main(int argc, char* argv[]) {
   bool unicode = true;
-  bool tui = false;
+  bool tui = true;
   int engine_depth = 3;
   Color engine_side = Color::kBlack;
 
   for (int i = 1; i < argc; ++i) {
     std::string_view arg = argv[i];
-    if (arg == "--tui") {
+    if (arg == "--no-tui") {
+      tui = false;
+    } else if (arg == "--tui") {
       tui = true;
     } else if (arg == "--text" || arg == "--ascii") {
       unicode = false;
