@@ -6,6 +6,8 @@
 
 #include "view.h"
 
+namespace chess {
+
 class UnicodeView : public View {
  public:
   void Render(const Board& board, bool game_over) override;
@@ -18,3 +20,5 @@ class UnicodeView : public View {
  private:
   std::vector<std::string> pending_;
 };
+
+}  // namespace chess

@@ -3,6 +3,8 @@
 #include "../piece.h"
 #include "../square.h"
 
+namespace chess {
+
 class Pawn final : public Piece {
  public:
   explicit Pawn(Color color);
@@ -15,3 +17,5 @@ class Pawn final : public Piece {
   std::vector<Square> Attacks(const Square& from,
                               const Board& board) const override;
 };
+
+}  // namespace chess

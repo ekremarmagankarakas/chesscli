@@ -6,6 +6,8 @@
 #include "../piece.h"
 #include "../square.h"
 
+namespace chess {
+
 Pawn::Pawn(Color color) : Piece(color, PieceType::kPawn) {}
 char Pawn::GetSymbol() const { return GetColor() == Color::kWhite ? 'P' : 'p'; }
 
@@ -76,3 +78,5 @@ std::vector<Square> Pawn::Attacks(const Square& from, const Board&) const {
   }
   return attacks;
 }
+
+}  // namespace chess

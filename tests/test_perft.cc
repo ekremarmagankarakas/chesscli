@@ -6,6 +6,8 @@
 
 #include "board.h"
 
+using namespace chess;
+
 static uint64_t Perft(Board& b, int depth) {
   if (depth == 0) {
     return 1;

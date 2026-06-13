@@ -3,6 +3,8 @@
 #include "piece.h"
 #include "square.h"
 
+namespace chess {
+
 struct CastlingRights {
   bool wk = true, wq = true, bk = true, bq = true;
 
@@ -60,3 +62,5 @@ struct CastlingRights {
   bool Kingside(Color c) const { return c == Color::kWhite ? wk : bk; }
   bool Queenside(Color c) const { return c == Color::kWhite ? wq : bq; }
 };
+
+}  // namespace chess

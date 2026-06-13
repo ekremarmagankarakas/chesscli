@@ -4,6 +4,8 @@
 
 #include "square.h"
 
+namespace chess {
+
 enum class Color { kWhite, kBlack };
 enum class PieceType { kPawn, kKnight, kBishop, kRook, kQueen, kKing };
 
@@ -35,3 +37,5 @@ class Piece {
   Color color_;
   PieceType type_;
 };
+
+}  // namespace chess

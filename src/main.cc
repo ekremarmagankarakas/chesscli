@@ -11,6 +11,8 @@
 #include "text_view.h"
 #include "unicode_view.h"
 
+using namespace chess;
+
 namespace {
 
 const char* kUsage =

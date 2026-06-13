@@ -5,6 +5,8 @@
 #include "../piece.h"
 #include "../square.h"
 
+namespace chess {
+
 Bishop::Bishop(Color color) : Piece(color, PieceType::kBishop) {}
 char Bishop::GetSymbol() const {
   return GetColor() == Color::kWhite ? 'B' : 'b';
@@ -41,3 +43,5 @@ std::vector<Square> Bishop::ValidMoves(const Square& from,
 
   return moves;
 }
+
+}  // namespace chess

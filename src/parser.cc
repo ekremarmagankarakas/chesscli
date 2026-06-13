@@ -10,6 +10,8 @@
 #include "piece.h"
 #include "square.h"
 
+namespace chess {
+
 namespace {
 
 std::optional<PieceType> PromotionFromChar(char c) {
@@ -244,3 +246,5 @@ Command Parse(std::string_view input, const Board& board) {
 
   return ParseError::kBadSyntax;
 }
+
+}  // namespace chess

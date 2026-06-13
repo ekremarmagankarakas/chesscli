@@ -9,6 +9,8 @@
 #include "move.h"
 #include "parser.h"
 
+namespace chess {
+
 namespace {
 template <class... Ts>
 struct Overloaded : Ts... {
@@ -100,3 +102,5 @@ void Game::HandleMove(const Move& move, std::string_view raw) {
     is_game_over_ = true;
   }
 }
+
+}  // namespace chess

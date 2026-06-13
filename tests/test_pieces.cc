@@ -4,6 +4,8 @@
 
 #include "board.h"
 
+using namespace chess;
+
 TEST_CASE("knight on b1 has 2 starting moves") {
   Board b;
   auto moves = b.At(0, 1)->ValidMoves({0, 1}, b);

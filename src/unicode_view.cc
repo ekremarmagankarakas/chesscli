@@ -8,6 +8,8 @@
 #include "game_result.h"
 #include "piece.h"
 
+namespace chess {
+
 namespace {
 
 // Background colors for board squares.
@@ -159,3 +161,5 @@ void UnicodeView::ShowResult(GameResult result) {
       return;
   }
 }
+
+}  // namespace chess

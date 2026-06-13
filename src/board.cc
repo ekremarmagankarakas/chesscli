@@ -11,6 +11,8 @@
 #include "pieces/queen.h"
 #include "pieces/rook.h"
 
+namespace chess {
+
 Board::Board() { Setup(); }
 
 void Board::Setup() {
@@ -528,3 +530,5 @@ void Board::ApplyNoHistory(const Move& move) {
   side_to_move_ =
       side_to_move_ == Color::kWhite ? Color::kBlack : Color::kWhite;
 }
+
+}  // namespace chess

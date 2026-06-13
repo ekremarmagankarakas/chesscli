@@ -1,5 +1,7 @@
 #pragma once
 
+namespace chess {
+
 enum class GameResult {
   kWhiteWins,
   kBlackWins,
@@ -8,3 +10,5 @@ enum class GameResult {
   kThreefoldDraw,
   kInsufficientMaterialDraw
 };
+
+}  // namespace chess

@@ -5,6 +5,8 @@
 #include "../piece.h"
 #include "../square.h"
 
+namespace chess {
+
 Knight::Knight(Color color) : Piece(color, PieceType::kKnight) {}
 char Knight::GetSymbol() const {
   return GetColor() == Color::kWhite ? 'N' : 'n';
@@ -32,3 +34,5 @@ std::vector<Square> Knight::ValidMoves(const Square& from,
   }
   return moves;
 }
+
+}  // namespace chess

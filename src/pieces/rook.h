@@ -4,6 +4,8 @@
 #include "../piece.h"
 #include "../square.h"
 
+namespace chess {
+
 class Rook final : public Piece {
  public:
   explicit Rook(Color color);
@@ -14,3 +16,5 @@ class Rook final : public Piece {
   std::vector<Square> ValidMoves(const Square& from,
                                  const Board& board) const override;
 };
+
+}  // namespace chess

@@ -6,6 +6,8 @@
 #include "../piece.h"
 #include "../square.h"
 
+namespace chess {
+
 King::King(Color color) : Piece(color, PieceType::kKing) {}
 char King::GetSymbol() const { return GetColor() == Color::kWhite ? 'K' : 'k'; }
 
@@ -59,3 +61,5 @@ std::vector<Square> King::Attacks(const Square& from, const Board&) const {
   }
   return attacks;
 }
+
+}  // namespace chess

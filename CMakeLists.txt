@@ -14,12 +14,13 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Wpedantic")
 set(CMAKE_CXX_FLAGS_DEBUG "-g -O0 -fsanitize=address,undefined")
 set(CMAKE_CXX_FLAGS_RELEASE "-O2")
 
-# Engine sources (everything except main.cc).
+# Engine sources (everything except main.cc and the public-facade .cc).
 file(GLOB_RECURSE ENGINE_SOURCES
     "src/*.cc"
     "src/pieces/*.cc"
 )
 list(REMOVE_ITEM ENGINE_SOURCES "${CMAKE_CURRENT_SOURCE_DIR}/src/main.cc")
+list(FILTER ENGINE_SOURCES EXCLUDE REGEX "/public/")
 
 add_library(chesscli_engine STATIC ${ENGINE_SOURCES})
 target_include_directories(chesscli_engine PUBLIC src)
@@ -27,6 +28,18 @@ target_include_directories(chesscli_engine PUBLIC src)
 # Main executable.
 add_executable(chesscli src/main.cc)
 target_link_libraries(chesscli PRIVATE chesscli_engine)
+
+# Embedding library: engine + pimpl facade. Only the public/ header is exported.
+add_library(chesscli_lib STATIC
+  ${ENGINE_SOURCES}
+  src/public/chess.cc
+)
+target_include_directories(chesscli_lib
+  PUBLIC  ${CMAKE_CURRENT_SOURCE_DIR}/src/public
+  PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/src
+)
+target_compile_features(chesscli_lib PUBLIC cxx_std_20)
+add_library(chess::chess ALIAS chesscli_lib)
 
 # Tests (opt-in). doctest fetched via FetchContent.
 option(CHESSCLI_BUILD_TESTS "Build unit tests" ON)

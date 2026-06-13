@@ -3,6 +3,8 @@
 #include "../piece.h"
 #include "../square.h"
 
+namespace chess {
+
 class Bishop final : public Piece {
  public:
   explicit Bishop(Color color);
@@ -13,3 +15,5 @@ class Bishop final : public Piece {
   std::vector<Square> ValidMoves(const Square& from,
                                  const Board& board) const override;
 };
+
+}  // namespace chess

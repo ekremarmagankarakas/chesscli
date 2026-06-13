@@ -5,6 +5,8 @@
 #include "../piece.h"
 #include "../square.h"
 
+namespace chess {
+
 Rook::Rook(Color color) : Piece(color, PieceType::kRook) {}
 char Rook::GetSymbol() const { return GetColor() == Color::kWhite ? 'R' : 'r'; }
 
@@ -39,3 +41,5 @@ std::vector<Square> Rook::ValidMoves(const Square& from,
 
   return moves;
 }
+
+}  // namespace chess

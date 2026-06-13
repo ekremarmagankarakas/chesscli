@@ -6,6 +6,8 @@
 #include "piece.h"
 #include "square.h"
 
+namespace chess {
+
 struct Move {
   Square from;
   Square to;
@@ -35,3 +37,5 @@ inline std::string MoveToUCI(const Move& m) {
   }
   return s;
 }
+
+}  // namespace chess

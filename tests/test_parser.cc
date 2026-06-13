@@ -7,6 +7,8 @@
 #include "command.h"
 #include "parser.h"
 
+using namespace chess;
+
 // ---------- ParseUCI (stateless) ----------
 
 TEST_CASE("ParseUCI: e2e4") {

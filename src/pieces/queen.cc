@@ -5,6 +5,8 @@
 #include "../piece.h"
 #include "../square.h"
 
+namespace chess {
+
 Queen::Queen(Color color) : Piece(color, PieceType::kQueen) {}
 char Queen::GetSymbol() const {
   return GetColor() == Color::kWhite ? 'Q' : 'q';
@@ -41,3 +43,5 @@ std::vector<Square> Queen::ValidMoves(const Square& from,
 
   return moves;
 }
+
+}  // namespace chess

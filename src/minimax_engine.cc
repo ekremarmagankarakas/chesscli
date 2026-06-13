@@ -7,6 +7,8 @@
 #include "board.h"
 #include "piece.h"
 
+namespace chess {
+
 namespace {
 
 constexpr int kInf = 1'000'000;
@@ -128,3 +130,5 @@ Move MinimaxEngine::Choose(Board& board) {
   }
   return best_move;
 }
+
+}  // namespace chess

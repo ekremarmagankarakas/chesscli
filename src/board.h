@@ -13,6 +13,8 @@
 #include "piece.h"
 #include "square.h"
 
+namespace chess {
+
 class Board {
  public:
   static constexpr int kSize = 8;
@@ -74,3 +76,5 @@ class Board {
   std::optional<Square> FindPiece(const PieceType ptype,
                                   const Color color) const;
 };
+
+}  // namespace chess

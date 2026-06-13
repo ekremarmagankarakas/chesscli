@@ -3,6 +3,8 @@
 #include <array>
 #include <cstdint>
 
+namespace chess {
+
 struct BoardState {
   std::array<uint8_t, 64> squares;
   uint8_t side;
@@ -18,3 +20,5 @@ inline bool operator==(const BoardState& a, const BoardState& b) {
   return a.squares == b.squares && a.side == b.side &&
          a.castling == b.castling && a.ep_file == b.ep_file;
 }
+
+}  // namespace chess

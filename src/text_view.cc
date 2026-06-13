@@ -6,6 +6,8 @@
 #include "game_result.h"
 #include "piece.h"
 
+namespace chess {
+
 void TextView::Render(const Board& board, bool game_over) {
   for (int row = Board::kSize - 1; row >= 0; --row) {
     std::cout << (row + 1) << ' ';
@@ -77,3 +79,5 @@ void TextView::ShowResult(GameResult result) {
       return;
   }
 }
+
+}  // namespace chess

@@ -5,6 +5,8 @@
 #include "game_result.h"
 #include "parse_error.h"
 
+namespace chess {
+
 class Board;
 
 class View {
@@ -17,3 +19,5 @@ class View {
   virtual void ShowParseError(ParseError err, std::string_view input) = 0;
   virtual void ShowResult(GameResult result) = 0;
 };
+
+}  // namespace chess

@@ -2,6 +2,8 @@
 
 #include "board.h"
 
+using namespace chess;
+
 TEST_CASE("Apply moves piece and flips side") {
   Board b;
   b.Apply(Move{{1, 4}, {3, 4}, std::nullopt});

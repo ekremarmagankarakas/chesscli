@@ -9,6 +9,8 @@
 #include "piece.h"
 #include "view.h"
 
+namespace chess {
+
 struct Move;
 
 class Game {
@@ -30,3 +32,5 @@ class Game {
   bool is_game_over_ = false;
   bool quit_ = false;
 };
+
+}  // namespace chess
