@@ -65,7 +65,7 @@ std::optional<Move> FindMatchingMove(const Board& board, PieceType type,
                                      std::optional<int> from_file,
                                      std::optional<int> from_rank) {
   std::vector<Move> matches;
-  Color side = board.ToMove();
+  Color side = board.SideToMove();
   for (int row = 0; row < 8; ++row) {
     for (int col = 0; col < 8; ++col) {
       const Piece* p = board.At(row, col);
@@ -128,11 +128,11 @@ std::optional<Move> ParseSAN(std::string_view s, const Board& board) {
 
   // Castling.
   if (s == "O-O" || s == "0-0") {
-    int row = board.ToMove() == Color::kWhite ? 0 : 7;
+    int row = board.SideToMove() == Color::kWhite ? 0 : 7;
     return Move{Square{row, 4}, Square{row, 6}, std::nullopt};
   }
   if (s == "O-O-O" || s == "0-0-0") {
-    int row = board.ToMove() == Color::kWhite ? 0 : 7;
+    int row = board.SideToMove() == Color::kWhite ? 0 : 7;
     return Move{Square{row, 4}, Square{row, 2}, std::nullopt};
   }
 

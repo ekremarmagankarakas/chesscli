@@ -1,6 +1,7 @@
 #include "text_view.h"
 
 #include <iostream>
+#include <sstream>
 
 #include "board.h"
 #include "game_result.h"
@@ -8,30 +9,36 @@
 
 namespace chess {
 
-void TextView::Render(const Board& board, bool game_over) {
+std::string TextView::RenderToString(const Board& board, bool game_over) const {
+  std::ostringstream oss;
   for (int row = Board::kSize - 1; row >= 0; --row) {
-    std::cout << (row + 1) << ' ';
+    oss << (row + 1) << ' ';
     for (int col = 0; col < Board::kSize; ++col) {
       const Piece* piece = board.At(row, col);
       if (piece) {
-        std::cout << piece->GetSymbol() << ' ';
+        oss << piece->GetSymbol() << ' ';
       } else {
-        std::cout << ". ";
+        oss << ". ";
       }
     }
-    std::cout << '\n';
+    oss << '\n';
   }
-  std::cout << "  a b c d e f g h\n";
+  oss << "  a b c d e f g h\n";
   if (!game_over) {
-    std::cout << (board.ToMove() == Color::kWhite ? "White" : "Black")
-              << " to move\n";
+    oss << (board.SideToMove() == Color::kWhite ? "White" : "Black")
+        << " to move\n";
   }
+  return oss.str();
+}
+
+void TextView::Render(const Board& board, bool game_over) {
+  std::cout << RenderToString(board, game_over);
 }
 
 void TextView::ShowMessage(std::string_view msg) { std::cout << msg << '\n'; }
 
 void TextView::ShowHistory(const Board& board) {
-  for (const auto& entry : board.GetHistory()) {
+  for (const auto& entry : board.History()) {
     std::cout << MoveToUCI(entry.move) << '\n';
   }
 }

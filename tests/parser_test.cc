@@ -1,3 +1,5 @@
+#include "parser.h"
+
 #include <doctest/doctest.h>
 
 #include <variant>
@@ -5,7 +7,6 @@
 #include "board.h"
 #include "board_state.h"
 #include "command.h"
-#include "parser.h"
 
 using namespace chess;
 

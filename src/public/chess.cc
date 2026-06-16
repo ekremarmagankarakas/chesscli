@@ -1,6 +1,5 @@
 #include "chess.h"
 
-#include <iostream>
 #include <sstream>
 #include <string>
 #include <variant>
@@ -24,11 +23,11 @@ namespace chess {
 namespace {
 
 Side ToPublicSide(Color c) {
-  return c == Color::kWhite ? Side::White : Side::Black;
+  return c == Color::kWhite ? Side::kWhite : Side::kBlack;
 }
 
 Color ToInternalColor(Side s) {
-  return s == Side::White ? Color::kWhite : Color::kBlack;
+  return s == Side::kWhite ? Color::kWhite : Color::kBlack;
 }
 
 Result ToPublicResult(GameResult r) {
@@ -93,19 +92,14 @@ Session::Session(Session&&) noexcept = default;
 Session& Session::operator=(Session&&) noexcept = default;
 
 std::string Session::Render() const {
-  // Capture View output by redirecting std::cout to a local stream.
-  std::ostringstream oss;
-  std::streambuf* old = std::cout.rdbuf(oss.rdbuf());
-  impl_->view->Render(impl_->board, impl_->game_over);
-  std::cout.rdbuf(old);
-  return oss.str();
+  return impl_->view->RenderToString(impl_->board, impl_->game_over);
 }
 
 bool Session::IsOver() const { return impl_->game_over; }
 
 Result Session::Outcome() const { return impl_->outcome; }
 
-Side Session::ToMove() const { return ToPublicSide(impl_->board.ToMove()); }
+Side Session::ToMove() const { return ToPublicSide(impl_->board.SideToMove()); }
 
 std::vector<std::string> Session::History() const { return impl_->history; }
 
@@ -132,7 +126,7 @@ CommandResult Session::Apply(std::string_view input) {
               return;
             }
             // Engine reply if configured and now its turn.
-            if (impl_->engine && impl_->board.ToMove() ==
+            if (impl_->engine && impl_->board.SideToMove() ==
                                      ToInternalColor(impl_->cfg.engine_side)) {
               Move em = impl_->engine->Choose(impl_->board);
               impl_->board.Apply(em);

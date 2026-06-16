@@ -16,7 +16,7 @@ static uint64_t Perft(Board& b, int depth) {
   for (int r = 0; r < 8; ++r) {
     for (int c = 0; c < 8; ++c) {
       const Piece* p = b.At(r, c);
-      if (!p || p->GetColor() != b.ToMove()) {
+      if (!p || p->GetColor() != b.SideToMove()) {
         continue;
       }
       for (Square to : p->ValidMoves({r, c}, b)) {

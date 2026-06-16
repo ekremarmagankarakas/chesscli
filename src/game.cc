@@ -42,7 +42,7 @@ void Game::Play() {
   view_->Render(board_, is_game_over_);
   while (!quit_) {
     // Engine's turn: ask engine, apply directly, re-render.
-    if (engine_ && !is_game_over_ && board_.ToMove() == engine_side_) {
+    if (engine_ && !is_game_over_ && board_.SideToMove() == engine_side_) {
       Move m = engine_->Choose(board_);
       view_->ShowMessage("Engine plays " + MoveToUCI(m));
       HandleMove(m, MoveToUCI(m));

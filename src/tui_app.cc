@@ -299,7 +299,7 @@ struct TuiApp::Impl {
   }
 
   bool IsLastMoveSquare(int r, int c) const {
-    const auto& hist = board.GetHistory();
+    const auto& hist = board.History();
     if (hist.empty()) {
       return false;
     }
@@ -356,7 +356,7 @@ struct TuiApp::Impl {
         status = "No piece on " + cursor.ToAlgebraic();
         return;
       }
-      if (p->GetColor() != board.ToMove()) {
+      if (p->GetColor() != board.SideToMove()) {
         status = "Not your piece";
         return;
       }
@@ -402,7 +402,7 @@ struct TuiApp::Impl {
   }
 
   void CommitMove(const Move& m) {
-    const char* mover = board.ToMove() == Color::kWhite ? "W" : "B";
+    const char* mover = board.SideToMove() == Color::kWhite ? "W" : "B";
     board.Apply(m);
     AppendLog(std::string(mover) + ": " + MoveToUCI(m));
     selected.reset();
@@ -414,7 +414,7 @@ struct TuiApp::Impl {
       status = ResultLabel(*r);
       return;
     }
-    if (engine && board.ToMove() == engine_side) {
+    if (engine && board.SideToMove() == engine_side) {
       RunEngine();
     }
   }
@@ -423,7 +423,7 @@ struct TuiApp::Impl {
     if (game_over || !engine) {
       return;
     }
-    const char* mover = board.ToMove() == Color::kWhite ? "W" : "B";
+    const char* mover = board.SideToMove() == Color::kWhite ? "W" : "B";
     Move em = engine->Choose(board);
     board.Apply(em);
     AppendLog(std::string("Engine ") + mover + ": " + MoveToUCI(em));
@@ -586,12 +586,12 @@ ftxui::Element RenderSidePanel(const TuiApp::Impl& s) {
     stm = std::string("Game over: ") + ResultLabel(*s.result);
   } else {
     stm = "To move: ";
-    stm += (s.board.ToMove() == Color::kWhite) ? "White ♔" : "Black ♚";
+    stm += (s.board.SideToMove() == Color::kWhite) ? "White ♔" : "Black ♚";
   }
 
   std::vector<Element> hist;
   hist.push_back(text("History") | bold | underlined);
-  const auto& h = s.board.GetHistory();
+  const auto& h = s.board.History();
   if (h.empty()) {
     hist.push_back(text("(no moves yet)") | dim);
   } else {
@@ -636,7 +636,7 @@ TuiApp::TuiApp(std::unique_ptr<Engine> engine, Color engine_side)
   impl_->engine = std::move(engine);
   impl_->engine_side = engine_side;
   // If engine plays White and game just started, let it move first.
-  if (impl_->engine && impl_->board.ToMove() == impl_->engine_side) {
+  if (impl_->engine && impl_->board.SideToMove() == impl_->engine_side) {
     impl_->RunEngine();
   }
 }

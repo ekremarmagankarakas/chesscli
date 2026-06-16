@@ -59,16 +59,16 @@ int MinimaxEngine::Search(Board& board, int depth, int alpha, int beta) {
   auto moves = board.LegalMoves();
   if (moves.empty()) {
     // Terminal: checkmate or stalemate.
-    if (board.IsInCheck(board.ToMove())) {
+    if (board.IsInCheck(board.SideToMove())) {
       // Side-to-move is mated. Score from White's perspective.
       // Prefer faster mates: closer-to-root mate scores higher in magnitude.
-      int sign = (board.ToMove() == Color::kWhite) ? -1 : 1;
+      int sign = (board.SideToMove() == Color::kWhite) ? -1 : 1;
       return sign * (kMateScore - depth);
     }
     return 0;  // stalemate
   }
 
-  bool maximizing = board.ToMove() == Color::kWhite;
+  bool maximizing = board.SideToMove() == Color::kWhite;
   if (maximizing) {
     int best = -kInf;
     for (const Move& m : moves) {
@@ -104,7 +104,7 @@ Move MinimaxEngine::Choose(Board& board) {
     throw std::runtime_error("MinimaxEngine: no legal moves available");
   }
 
-  bool maximizing = board.ToMove() == Color::kWhite;
+  bool maximizing = board.SideToMove() == Color::kWhite;
   Move best_move = moves[0];
   int best_score = maximizing ? -kInf : kInf;
   int alpha = -kInf;

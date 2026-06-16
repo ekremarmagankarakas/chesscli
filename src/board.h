@@ -33,9 +33,9 @@ class Board {
   void Apply(const Move& move);
   void Undo();
 
-  const std::vector<HistoryEntry>& GetHistory() const;
+  const std::vector<HistoryEntry>& History() const;
 
-  Color ToMove() const { return side_to_move_; }
+  Color SideToMove() const { return side_to_move_; }
 
   static bool InBounds(const Square& square);
   static bool InBounds(int row, int col);

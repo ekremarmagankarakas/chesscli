@@ -1,6 +1,6 @@
-#include <doctest/doctest.h>
-
 #include "board.h"
+
+#include <doctest/doctest.h>
 
 using namespace chess;
 
@@ -9,7 +9,7 @@ TEST_CASE("Apply moves piece and flips side") {
   b.Apply(Move{{1, 4}, {3, 4}, std::nullopt});
   CHECK(b.At(1, 4) == nullptr);
   CHECK(b.At(3, 4) != nullptr);
-  CHECK(b.ToMove() == Color::kBlack);
+  CHECK(b.SideToMove() == Color::kBlack);
 }
 
 TEST_CASE("IsLegal rejects moving opponent's piece") {
@@ -28,7 +28,7 @@ TEST_CASE("undo restores starting position") {
   b.Undo();
   CHECK(b.At(1, 4) != nullptr);
   CHECK(b.At(3, 4) == nullptr);
-  CHECK(b.ToMove() == Color::kWhite);
+  CHECK(b.SideToMove() == Color::kWhite);
 }
 
 TEST_CASE("multiple undos walk back through history") {
@@ -38,11 +38,11 @@ TEST_CASE("multiple undos walk back through history") {
   b.Undo();
   CHECK(b.At(4, 4) == nullptr);
   CHECK(b.At(6, 4) != nullptr);
-  CHECK(b.ToMove() == Color::kBlack);
+  CHECK(b.SideToMove() == Color::kBlack);
   b.Undo();
   CHECK(b.At(3, 4) == nullptr);
   CHECK(b.At(1, 4) != nullptr);
-  CHECK(b.ToMove() == Color::kWhite);
+  CHECK(b.SideToMove() == Color::kWhite);
 }
 
 TEST_CASE("en passant capture") {
@@ -98,7 +98,7 @@ TEST_CASE("Reset restores starting position and clears history") {
   CHECK(b.At(3, 4) == nullptr);
   CHECK(b.At(6, 4) != nullptr);
   CHECK(b.At(4, 4) == nullptr);
-  CHECK(b.ToMove() == Color::kWhite);
+  CHECK(b.SideToMove() == Color::kWhite);
   // History cleared — Undo should be a no-op.
   b.Undo();
   CHECK(b.At(1, 4) != nullptr);
