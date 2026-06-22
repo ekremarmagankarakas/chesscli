@@ -496,13 +496,16 @@ namespace {
 ftxui::Element RenderCell(TuiApp::Impl& s, int row, int col) {
   using namespace ftxui;
 
-  const Piece* p = s.board.At(row, col);
-
   bool is_cursor = (s.cursor_row == row && s.cursor_col == col);
   bool is_sel = s.IsSelected(row, col);
+  // IsCandidate -> CandidateLandings -> Board::LegalMoves -> Board::IsLegal
+  // -> Board::Restore re-allocates every Piece on the board, invalidating
+  // any Piece* captured beforehand. Read the piece pointer after this call.
   bool is_cand = s.IsCandidate(row, col);
   bool is_last = s.IsLastMoveSquare(row, col);
   bool light = (row + col) % 2 == 1;
+
+  const Piece* p = s.board.At(row, col);
 
   // All backgrounds chosen at mid-luminance so neither pure-white nor
   // pure-black pieces wash out. Pieces are uniform per side.
